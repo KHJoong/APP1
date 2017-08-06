@@ -243,6 +243,7 @@ public class InChattingActivity extends AppCompatActivity {
         }
 
         public void run() {
+            // in 이 비어있는지 확인합니다.
             if(in == null)
                 System.out.println("inChatnull" + in);
             else
