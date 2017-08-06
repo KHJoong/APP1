@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="95dp">
+
+    <TextView
+        android:id="@+id/nf_nick"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="닉네임"
+        android:textSize="22sp"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/nf_lang"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="언어"
+            android:textSize="19sp"
+            android:gravity="center_vertical"
+            android:paddingLeft="19dp"
+            android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/nf_time"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="시간"
+            android:textSize="19sp"
+            android:paddingRight="10dp"
+            android:gravity="right|center_vertical"
+            android:layout_marginRight="10dp"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"/>
+
+</LinearLayout>

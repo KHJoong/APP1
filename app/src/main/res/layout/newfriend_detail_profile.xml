@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/nickname_img"/>
+        <TextView
+            android:id="@+id/detail_profile_nickname"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="nickname"
+            android:textSize="25sp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/location_img"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:id="@+id/detail_profile_location"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:text="location"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/language_img"/>
+        <TextView
+            android:id="@+id/detail_profile_language"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:text="language"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/lasttime_img"/>
+        <TextView
+            android:id="@+id/detail_profile_lasttime"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:text="lasttime"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/introduce_img"/>
+        <TextView
+            android:id="@+id/first"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="당신과 대화가 잘 통할 것 같은 사람인가요?"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/img"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="4dp"/>
+        <TextView
+            android:id="@+id/detail_profile_introduce"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="introduce"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/first"
+            android:layout_toRightOf="@id/img"
+            android:textColor="#000000"/>
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#aaaaaa"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <ImageView
+            android:id="@+id/img2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/hobby_img" />
+
+        <TextView
+            android:id="@+id/first2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="4dp"
+            android:layout_toRightOf="@id/img2"
+            android:text="당신과의 공통 관심사를 찾아보세요."
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/ho1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="1"
+            android:layout_toRightOf="@id/img2"
+            android:layout_below="@id/first2"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/detail_profile_hobby1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/first2"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/ho1"
+            android:gravity="center"
+            android:text="hobby1"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/ho2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="2"
+            android:layout_toRightOf="@id/img2"
+            android:layout_below="@id/detail_profile_hobby1"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/detail_profile_hobby2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detail_profile_hobby1"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/ho2"
+            android:gravity="center"
+            android:text="hobby2"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/ho3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="3"
+            android:layout_toRightOf="@id/img2"
+            android:layout_below="@id/detail_profile_hobby2"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/detail_profile_hobby3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detail_profile_hobby2"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/ho3"
+            android:gravity="center"
+            android:text="hobby3"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/ho4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="4"
+            android:layout_toRightOf="@id/img2"
+            android:layout_below="@id/detail_profile_hobby3"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/detail_profile_hobby4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detail_profile_hobby3"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/ho4"
+            android:gravity="center"
+            android:text="hobby4"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/ho5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="5"
+            android:layout_toRightOf="@id/img2"
+            android:layout_below="@id/detail_profile_hobby4"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/detail_profile_hobby5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detail_profile_hobby4"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/ho5"
+            android:gravity="center"
+            android:text="hobby5"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+
+    <Button
+        android:id="@+id/btn_newfriend_plus"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="친구 추가"
+        android:textSize="20sp"
+        android:background="#fceedd"
+        android:layout_marginTop="10dp"/>
+    
+</LinearLayout>

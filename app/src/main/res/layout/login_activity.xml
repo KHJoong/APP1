@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_id"
+        android:layout_width="356dp"
+        android:layout_height="40dp"
+        android:text="@string/text_id"
+        android:textSize="20sp"
+        android:gravity="center_vertical"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="180dp"/>
+    <EditText
+        android:id="@+id/login_id"
+        android:layout_width="356dp"
+        android:layout_height="40dp"
+        android:hint="@string/input_id"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tv_id"/>
+    <TextView
+        android:id="@+id/tv_pw"
+        android:layout_width="356dp"
+        android:layout_height="40dp"
+        android:text="@string/text_pw"
+        android:textSize="20sp"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/login_id"/>
+    <EditText
+        android:id="@+id/login_pw"
+        android:layout_width="356dp"
+        android:layout_height="40dp"
+        android:hint="@string/input_pw"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:inputType="textPassword"
+        android:layout_below="@id/tv_pw"/>
+
+    <LinearLayout
+        android:id="@+id/ll"
+        android:layout_width="356dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/login_pw">
+        <Button
+            android:id="@+id/to_member_join_btn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:textColor="#3322ee"
+            android:text="@string/go_to_member_join"/>
+        <Button
+            android:id="@+id/to_member_login_btn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/login"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="356dp"
+        android:layout_height="85dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ll"
+        android:layout_marginTop="10dp"
+        android:background="#333333"
+        >
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_login_btn"
+            android:layout_height="40dp"
+            android:layout_width="356dp"
+            app:buttonSize="wide"
+            app:colorScheme="light"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="2dp"/>
+
+        <Button
+            android:id="@+id/google_logout_btn"
+            android:layout_width="356dp"
+            android:layout_height="44dp"
+            android:visibility="gone"/>
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_login_btn"
+            android:layout_width="350dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/google_login_btn"
+            android:layout_marginTop="5dp"/>
+    </RelativeLayout>
+
+
+
+
+</RelativeLayout>

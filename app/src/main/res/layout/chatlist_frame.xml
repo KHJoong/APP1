@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp">
+        <TextView
+            android:id="@+id/roomName"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="10dp"
+            android:textSize="20sp"
+            android:text="roomName"
+            android:textColor="#cccccc"/>
+        <TextView
+            android:id="@+id/numMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/roomName"
+            android:gravity="center_vertical"
+            android:layout_centerInParent="true"
+            android:background="#aaaaaa"
+            android:textSize="15sp"
+            android:text="numMember"
+            android:textColor="#ffffff"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <TextView
+            android:id="@+id/lastCommuTime"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:text="lasttime"
+            android:textColor="#dddddd"/>
+        <TextView
+            android:id="@+id/lastCommu"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_toLeftOf="@id/lastCommuTime"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="20sp"
+            android:layout_marginRight="10dp"
+            android:textColor="#dddddd"
+            android:textSize="18sp"
+            android:text="lastcommu"/>
+
+    </RelativeLayout>
+</LinearLayout>

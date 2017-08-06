@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/msg_area">
+
+    <EditText
+        android:id="@+id/etSendedMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColorHint="#888888"
+        android:textColor="#111111"
+        android:hint="메시지 쓰기..." />
+
+    <ImageView
+        android:id="@+id/btnSendMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:padding="4dp"
+        android:src="@android:drawable/ic_menu_send" />
+</LinearLayout>

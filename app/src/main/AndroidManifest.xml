@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.together.linkalk">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!--Facebook Sign-in Start-->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity>
+        <!--Facebook Sign-in End-->
+
+        <!--main activity start-->
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+        </activity>
+        <!--main activity end-->
+
+        <!--memberjoin activity start-->
+        <activity
+            android:name=".MemberJoinActivity">
+        </activity>
+        <!--memberjoin activity end-->
+
+        <!--splash activity start-->
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--splash activity end-->
+
+        <!--login activity start-->
+        <activity
+            android:name=".LoginActivity">
+
+        </activity>
+        <!--login activity end-->
+
+        <!--newfriend detail profile activity start-->
+        <activity
+            android:name=".NewFriendDetailProfile">
+
+        </activity>
+        <!--newfriend detail profile activity end-->
+
+        <!--my profile modift activity start-->
+        <activity
+            android:name=".MyProfileModify">
+
+        </activity>
+        <!--my profile modift activity end-->
+
+        <!--my profile modift activity start-->
+        <activity
+            android:name=".MyFriendDetailProfile">
+
+        </activity>
+        <!--my profile modift activity end-->
+
+        <!--Chatting activity start-->
+        <activity
+            android:name=".InChattingActivity">
+
+        </activity>
+        <!--Chatting activity end-->
+
+        <!--Google Firebase (To FCM) start-->
+        <service
+            android:name=".FirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name=".FirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+        <!--Google Firebase (To FCM) end-->
+    </application>
+
+</manifest>

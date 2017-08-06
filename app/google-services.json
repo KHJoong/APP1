@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "958846411772",
+    "project_id": "just-lore-172714"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958846411772:android:d06cd0910238ac44",
+        "android_client_info": {
+          "package_name": "com.together.linkalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "958846411772-594f79b1l1m852bs399envoc42d32oa7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.together.linkalk",
+            "certificate_hash": "8883f44b19ce154af015acaa12824d2c77c8c883"
+          }
+        },
+        {
+          "client_id": "958846411772-4d865m1pq1esfqsq6r2ebce24ug396ov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtq3RIFw8ce6eKVH49lV-i-bFBTCb8EHo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

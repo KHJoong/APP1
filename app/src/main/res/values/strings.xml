@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Linkalk</string>
+    <string name="title_friend">친구</string>
+    <string name="title_new_friend">추천 친구</string>
+    <string name="title_chat">채팅방</string>
+    <string name="title_setting">설정</string>
+
+    <string name="text_id">ID :</string>
+    <string name="input_id">가입하신 E-mail을 입력하세요</string>
+    <string name="text_pw">P/W :</string>
+    <string name="input_pw">P/W를 입력하세요</string>
+    <string name="go_to_member_join">Linkalk을 처음 이용합니다.</string>
+    <string name="login">Login</string>
+
+    <string name="member_join">MEMBER JOIN</string>
+    <string name="member_mail">E-mail</string>
+    <string name="member_family_name">Family Name</string>
+    <string name="member_given_name">Last Name</string>
+    <string name="member_pw">Password</string>
+    <string name="member_pwcon">Password Check</string>
+    <string name="member_nickname">Your Nickname</string>
+    <string name="member_language">Select your language</string>
+    <string name="member_modify">회원 정보 수정</string>
+    <string name="member_withdraw">회원 탈퇴</string>
+
+    <string name="ok">확  인</string>
+    <!--Facebook Sign-in Start-->
+    <string name="facebook_app_id">239780206511777</string>
+    <string name="fb_login_protocol_scheme">fb239780206511777</string>
+    <!--Facebook Sign-in End-->
+
+</resources>
