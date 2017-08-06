@@ -251,8 +251,6 @@ public class InChattingActivity extends AppCompatActivity {
             while(in != null) {//서버에서 받은 데이터를 뽑아냅니다.
                 try {
                     final String getString = in.readUTF();    //1
-//                    System.out.println("settttt" + in.readLine());
-//                    final String getString = in.readLine();
                     System.out.println("settttt" + getString);
                     if(!TextUtils.isEmpty(getString)){
                         handler.post(new Runnable() {
