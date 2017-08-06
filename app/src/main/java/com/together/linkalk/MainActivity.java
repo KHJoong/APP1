@@ -18,14 +18,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,14 +42,12 @@ public class MainActivity extends AppCompatActivity {
     TextView btn_chat;
     TextView btn_setting;
 
-    static String personname;
-    static String persongivenname;
-    static String personfamilyname;
-    static String personemail;
-    static String personid;
     static String type;
-
     static String nickname;
+
+    static Socket socket;
+    static DataOutputStream out;
+    static DataInputStream in;
 
     SharedPreferences sharedPreferences;
 
@@ -57,10 +60,33 @@ public class MainActivity extends AppCompatActivity {
         nickname = sharedPreferences.getString("nickname", "");
         type = sharedPreferences.getString("type", "");
 
-        //session
-        session session = new session();
-        session.execute();
-        //session
+        socket = new Socket();
+        if(!socket.isConnected()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String ip = "115.71.232.230"; // IP
+                    int port = 9999; // PORT번호
+
+                    // 서버에 연결할 때 보낼 내 닉네임
+                    SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
+                    String my_nickname = sharedPreferences.getString("nickname", "");
+
+                    try {
+                        SocketAddress sock_addr = new InetSocketAddress(ip, port);
+                        socket.connect(sock_addr);
+                        out = new DataOutputStream(socket.getOutputStream());
+                        in = new DataInputStream(socket.getInputStream());
+
+                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        dos.writeUTF(my_nickname);
+                        dos.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
         parent_of_viewpager = (LinearLayout)findViewById(R.id.parent_of_viewpager);
         viewPager = (ViewPager)findViewById(R.id.main_viewpager);
@@ -243,77 +269,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     } // TimeUpdate AsyncTask End
-
-
-    // session2(테스트임, 지워도 무방)
-    class session extends AsyncTask<Void, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(Void ... voids) {
-            try{
-                sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
-                String sessionID = sharedPreferences.getString("sessionID", "");
-
-                Log.i("sessionID",sessionID);
-                JSONObject object = new JSONObject();
-                object.put("sessionID", sessionID);
-                String send = object.toString();
-
-                URL url = new URL("http://o-ddang.com/linkalk/test.php");
-                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-
-                httpURLConnection.setDefaultUseCaches(false);
-                httpURLConnection.setDoInput(true);
-                httpURLConnection.setDoOutput(true);
-                httpURLConnection.setRequestMethod("POST");
-
-                httpURLConnection.setInstanceFollowRedirects( false );
-                if(!TextUtils.isEmpty(sessionID)) {
-                    httpURLConnection.setRequestProperty( "cookie", sessionID) ;
-                }
-
-                httpURLConnection.setRequestProperty("Accept", "application/json");
-                httpURLConnection.setRequestProperty("Content-type", "application/json");
-
-                OutputStream os = httpURLConnection.getOutputStream();
-                os.write(send.getBytes());
-                os.flush();
-
-                InputStreamReader tmp = new InputStreamReader(httpURLConnection.getInputStream(), "EUC-KR");
-                BufferedReader reader = new BufferedReader(tmp);
-                StringBuilder builder = new StringBuilder();
-                String str;
-                while ((str = reader.readLine()) != null) {
-                    builder.append(str + "\n");
-                }
-                String myResult = builder.toString();
-                Log.i("process result : ", myResult);
-                return myResult;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return e.getMessage();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return e.getMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return e.getMessage();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.i("nick post execute : ", s);
-            nickname = s;
-        }
-    } // session
-
 
     // 서버에서 친구 목록 받아오는 Asynctask
     class GetMyFriend extends AsyncTask<Void, Void, String>{
