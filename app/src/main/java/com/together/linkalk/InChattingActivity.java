@@ -45,8 +45,10 @@ import java.util.Date;
 public class InChattingActivity extends AppCompatActivity {
 
     Socket socket;
-//    String ip = "115.71.232.230"; // IP
-//    int port = 9999; // PORT번호
+    DataOutputStream dos;
+    static DataInputStream in;
+    String ip = "115.71.232.230"; // IP
+    int port = 9999; // PORT번호
 
     ListView lvChat;
     ChatCommunication_Adapter ccAdapter;
@@ -64,30 +66,6 @@ public class InChattingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_chat_room);
-
-        // 서버 소켓 연결 쓰레드
-//        socket = new Socket();
-//        if(!socket.isConnected()){
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    // 서버에 연결할 때 보낼 내 닉네임
-//                    SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
-//                    my_nickname = sharedPreferences.getString("nickname", "");
-//
-//                    try {
-//                        SocketAddress sock_addr = new InetSocketAddress(ip, port);
-//                        socket.connect(sock_addr);
-//
-//                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-//                        dos.writeUTF(my_nickname);
-//                        dos.flush();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }).start();
-//        }
 
         // 대화 상대방의 닉네임을 받아오는 intent
         Intent intent = getIntent();
@@ -112,12 +90,43 @@ public class InChattingActivity extends AppCompatActivity {
         lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
 
-        // 메시지 수신 쓰레드 실행
-        receiver = new Thread(new ClientReceiver(getApplicationContext(), ccAdapter, lvChat));
-        receiver.start();
-
         SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         my_nickname = sharedPreferences.getString("nickname", "");
+
+        // 메시지 수신 쓰레드 실행
+        receiver = new Thread(new ClientReceiver(getApplicationContext(), ccAdapter, lvChat));
+
+        // 서버 소켓 연결 쓰레드
+        socket = new Socket();
+        if(!socket.isConnected()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // 서버에 연결할 때 보낼 내 닉네임
+                    SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
+                    my_nickname = sharedPreferences.getString("nickname", "");
+
+                    try {
+                        SocketAddress sock_addr = new InetSocketAddress(ip, port);
+                        socket.connect(sock_addr);
+
+                        dos = new DataOutputStream(socket.getOutputStream());
+                        in = new DataInputStream(socket.getInputStream());
+                        dos.writeUTF(my_nickname);
+                        dos.flush();
+
+                        receiver.start();
+
+                        if(in == null)
+                            System.out.println("disChatnull" + in);
+                        else
+                            System.out.println("disChatnotnull" + in);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
         Thread showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
         showMsg.start();
@@ -135,8 +144,7 @@ public class InChattingActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String sdata = obj.toString();
-//                sender = new Thread(new ClientSender(socket, sdata));
-                sender = new Thread(new ClientSender(sdata));
+                sender = new Thread(new ClientSender(socket, dos, sdata));
                 sender.start();
 
                 etMsg.setText(null);
@@ -146,28 +154,30 @@ public class InChattingActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
     }   // onCreate 끝
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        receiver.interrupt();
+    }
+
     // 메시지 보내는 쓰레드
     static class ClientSender extends Thread{
-//        private Socket sockett;
-//        private DataOutputStream out;
+        private Socket sockett;
+        private DataOutputStream out;
         private String send_data_tmp;
         private byte[] send_data;
 
         // name 은 아이디 sdata 는 보낼 메시지
-        public ClientSender(String sdata) {
+        public ClientSender(Socket socket, DataOutputStream dataOutputStream, String sdata) {
             send_data_tmp = sdata;
+            out = dataOutputStream;
+            this.sockett = socket;
         }
-//        public ClientSender(Socket socket, String sdata) {
-//            this.sockett = socket;
-//            try { //데이터 아웃스트림. 버퍼드 라이터와 같다.
-//                send_data_tmp = sdata;
-//                if(sockett != null){
-//                    out = new DataOutputStream(sockett.getOutputStream());
-//                }
-//            } catch(IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         // 보낼 메시지를 바이트로 변환하여 서버로 전송하는 run
         public void run() {
@@ -179,12 +189,9 @@ public class InChattingActivity extends AppCompatActivity {
 
                 //서버쪽으로 보내겠다는 이야기임.
                 String line;
-                while((line = br.readLine()) != null && MainActivity.socket.isConnected()) {//지속적으로 널이 아닐때 사용자의 입력을 보냅니다.
-                    MainActivity.out.writeUTF(line);
+                while((line = br.readLine()) != null && sockett.isConnected()) {//지속적으로 널이 아닐때 사용자의 입력을 보냅니다.
+                    out.writeUTF(line);
                 }
-//                while((line = br.readLine()) != null && sockett.isConnected()) {//지속적으로 널이 아닐때 사용자의 입력을 보냅니다.
-//                    out.writeUTF(line);
-//                }
                 send_data = null;
             } catch(IOException e) {
 //                e.printStackTrace();
@@ -197,8 +204,6 @@ public class InChattingActivity extends AppCompatActivity {
     // 메시지 받는 쓰레드
     static class ClientReceiver extends Thread{
         Context mContext;
-//        private Socket sockettt;
-//        private DataInputStream in;   //1
 
         ChatCommunication_Adapter chatCommunication_adapter;
         ListView lvChat;
@@ -210,28 +215,17 @@ public class InChattingActivity extends AppCompatActivity {
             this.chatCommunication_adapter = adapter;
             this.lvChat = listView;
         }
-//        public ClientReceiver(Context context, Socket socket, ChatCommunication_Adapter adapter, ListView listView) {
-//            this.mContext = context;
-//            this.sockettt = socket ;
-//            this.chatCommunication_adapter = adapter;
-//            this.lvChat = listView;
-//            try {
-//                in = new DataInputStream(sockettt.getInputStream());
-//            } catch(IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         public void run() {
             // in 이 비어있는지 확인합니다.
-            if(MainActivity.in == null)
-                System.out.println("inChatnull" + MainActivity.in);
+            if(in == null)
+                System.out.println("inChatnull" + in);
             else
-                System.out.println("inChatnotnull" + MainActivity.in);
+                System.out.println("inChatnotnull" + in);
 
-            while(MainActivity.in != null) {//서버에서 받은 데이터를 뽑아냅니다.
+            while(in != null) {//서버에서 받은 데이터를 뽑아냅니다.
                 try {
-                    final String getString = MainActivity.in.readUTF();    //1
+                    final String getString = in.readUTF();    //1
                     System.out.println("settttt" + getString);
                     if(!TextUtils.isEmpty(getString)){
                         handler.post(new Runnable() {
@@ -271,6 +265,7 @@ public class InChattingActivity extends AppCompatActivity {
                     }
                 } catch(IOException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
         }

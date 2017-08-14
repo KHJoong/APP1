@@ -45,10 +45,6 @@ public class MainActivity extends AppCompatActivity {
     static String type;
     static String nickname;
 
-    static Socket socket;
-    static DataOutputStream out;
-    static DataInputStream in;
-
     SharedPreferences sharedPreferences;
 
     @Override
@@ -59,34 +55,6 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         nickname = sharedPreferences.getString("nickname", "");
         type = sharedPreferences.getString("type", "");
-
-        socket = new Socket();
-        if(!socket.isConnected()){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String ip = "115.71.232.230"; // IP
-                    int port = 9999; // PORT번호
-
-                    // 서버에 연결할 때 보낼 내 닉네임
-                    SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
-                    String my_nickname = sharedPreferences.getString("nickname", "");
-
-                    try {
-                        SocketAddress sock_addr = new InetSocketAddress(ip, port);
-                        socket.connect(sock_addr);
-                        out = new DataOutputStream(socket.getOutputStream());
-                        in = new DataInputStream(socket.getInputStream());
-
-                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                        dos.writeUTF(my_nickname);
-                        dos.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
 
         parent_of_viewpager = (LinearLayout)findViewById(R.id.parent_of_viewpager);
         viewPager = (ViewPager)findViewById(R.id.main_viewpager);
