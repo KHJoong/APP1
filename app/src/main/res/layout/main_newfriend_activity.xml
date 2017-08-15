@@ -3,13 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#000000"
+    android:background="#ffffff"
     >
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/srlNewFriend"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        >
 
         <ListView
             android:id="@+id/lvNewFriend"
@@ -19,10 +24,7 @@
             android:smoothScrollbar="true"
             android:scrollingCache="false"
             android:animationCache="false"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
+
             />
 
     </android.support.v4.widget.SwipeRefreshLayout>

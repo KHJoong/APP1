@@ -188,6 +188,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                 PlusChatRoom pcr = new PlusChatRoom();
                 pcr.execute(jsonObject.toString());
 
+                // 채팅방 띄우기
                 Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
                 intent.putExtra("Receiver", mem_nickname);
                 startActivity(intent);

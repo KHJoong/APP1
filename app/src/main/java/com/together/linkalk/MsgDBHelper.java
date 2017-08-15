@@ -22,7 +22,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS chat_room (roomNo INTEGER, relation TEXT);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS chat_room (roomNo INTEGER, relation TEXT, ordered INTEGER);");
         db.execSQL("CREATE TABLE IF NOT EXISTS chat_msg (roomNo INTEGER, msgNo INTEGER, sender TEXT, message TEXT, time TEXT, readed INTEGER, sync INTEGER);");
     }
 
@@ -36,18 +36,20 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         String query = "SELECT * FROM chat_room where roomNo='"+no+"'";
         Cursor cursor = db.rawQuery(query, null);
         if(cursor.getCount() == 0){
-            db.execSQL("INSERT INTO chat_room VALUES('"+no+"', '"+rel+"');");
+            db.execSQL("INSERT INTO chat_room VALUES('"+no+"', '"+rel+"','0');");
             db.close();
         }
     }
 
     public void insertMsg(String dis1, String dis2, String sender, String msg, String time, int readed, int sync){
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+        String query = "SELECT roomNo, ordered FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
         Cursor cursor = db.rawQuery(query, null);
         int rn = 0;
+        int or = 0;
         if(cursor.moveToFirst()){
-            rn =  cursor.getInt(0);
+            rn =  cursor.getInt(cursor.getColumnIndex("roomNo"));
+            or = cursor.getInt(cursor.getColumnIndex("ordered"));
         }
 
         String query2 = "SELECT msgNo FROM chat_msg WHERE roomNo='"+rn+"'";
@@ -55,6 +57,20 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         int mn = cursor.getCount();
 
         db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+msg+"', '"+time+"', '"+readed+"', '"+sync+"');");
+
+        cursor = db.rawQuery("SELECT * FROM chat_room ORDER BY ordered ASC;", null);
+        while(cursor.moveToNext()){
+            if((cursor.getInt(cursor.getColumnIndex("roomNo")) != rn) && cursor.getInt(cursor.getColumnIndex("ordered"))<=or){
+                int this_rn = cursor.getInt(cursor.getColumnIndex("roomNo"));
+                int save_or = cursor.getInt(cursor.getColumnIndex("ordered")) + 1;
+                db.execSQL("UPDATE chat_room SET ordered = '"+ save_or +"' WHERE roomNo = '"+ this_rn +"'");
+            }
+            if(cursor.getInt(cursor.getColumnIndex("roomNo")) == rn){
+                db.execSQL("UPDATE chat_room SET ordered = '0' WHERE roomNo='"+rn+"'");
+                break;
+            }
+        }
+
         db.close();
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="85dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -15,7 +15,8 @@
             android:layout_marginRight="10dp"
             android:textSize="20sp"
             android:text="roomName"
-            android:textColor="#cccccc"/>
+            android:textStyle="bold"
+            android:textColor="#444444"/>
         <TextView
             android:id="@+id/numMember"
             android:layout_width="wrap_content"
@@ -35,22 +36,22 @@
         <TextView
             android:id="@+id/lastCommuTime"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_height="40dp"
             android:layout_alignParentRight="true"
             android:layout_marginRight="10dp"
             android:gravity="center_vertical"
             android:textSize="16sp"
             android:text="lasttime"
-            android:textColor="#dddddd"/>
+            android:textColor="#999999"/>
         <TextView
             android:id="@+id/lastCommu"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="40dp"
             android:layout_toLeftOf="@id/lastCommuTime"
             android:gravity="center_vertical"
             android:layout_marginLeft="20sp"
             android:layout_marginRight="10dp"
-            android:textColor="#dddddd"
+            android:textColor="#777777"
             android:textSize="18sp"
             android:text="lastcommu"/>
 

@@ -5,16 +5,22 @@ package com.together.linkalk;
  */
 
 public class Room {
+    int roomNum;
     String roomName;
     int numMember;
     String lastCommunication;
     String lastCommunicationTime;
 
-    Room(String rn, int nm, String lc, String lct){
+    Room(int rnum, String rn, int nm, String lc, String lct){
+        roomNum = rnum;
         roomName = rn;
         numMember = nm;
         lastCommunication = lc;
         lastCommunicationTime = lct;
+    }
+
+    public int getRoomNum() {
+         return roomNum;
     }
 
     public String getRoomName() {
