@@ -3,19 +3,16 @@ package com.together.linkalk;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,11 +36,11 @@ import java.util.Date;
 
 public class InChattingActivity extends AppCompatActivity {
 
-    Socket socket;
-    DataOutputStream dos;
-    static DataInputStream in;
-    String ip = "115.71.232.230"; // IP
-    int port = 9999; // PORT번호
+//    Socket socket;
+//    DataOutputStream dos;
+//    static DataInputStream in;
+//    String ip = "115.71.232.230"; // IP
+//    int port = 9999; // PORT번호
 
     ListView lvChat;
     ChatCommunication_Adapter ccAdapter;
@@ -55,7 +52,9 @@ public class InChattingActivity extends AppCompatActivity {
     String other_nickname;
     String my_nickname;
     Thread sender;
-    Thread receiver;
+    Thread showMsg;
+    Thread getNewMsg;
+//    Thread receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,43 +87,22 @@ public class InChattingActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         my_nickname = sharedPreferences.getString("nickname", "");
 
-        // 메시지 수신 쓰레드 실행
-        receiver = new Thread(new ClientReceiver(getApplicationContext(), ccAdapter, lvChat));
-
-        // 서버 소켓 연결 쓰레드
-        socket = new Socket();
-        if(!socket.isConnected()){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // 서버에 연결할 때 보낼 내 닉네임
-                    SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
-                    my_nickname = sharedPreferences.getString("nickname", "");
-
-                    try {
-                        SocketAddress sock_addr = new InetSocketAddress(ip, port);
-                        socket.connect(sock_addr);
-
-                        dos = new DataOutputStream(socket.getOutputStream());
-                        in = new DataInputStream(socket.getInputStream());
-                        dos.writeUTF(my_nickname);
-                        dos.flush();
-
-                        receiver.start();
-
-                        if(in == null)
-                            System.out.println("disChatnull" + in);
-                        else
-                            System.out.println("disChatnotnull" + in);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-
-        Thread showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
+        // 저장된 메시지 불러오는 Thread 실행
+        showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
         showMsg.start();
+
+        final Handler handler = new Handler();
+        // 새로 저장되는 메시지 불러오는 Thread
+        getNewMsg = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!Thread.currentThread().isInterrupted()){
+                    MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
+                    msgDBHelper.continueSelectMsg(handler, my_nickname, other_nickname, lvChat, ccAdapter);
+                }
+            }
+        });
+        getNewMsg.start();
 
         // 메시지 전송 버튼
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +117,8 @@ public class InChattingActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String sdata = obj.toString();
-                sender = new Thread(new ClientSender(socket, dos, sdata));
+//                sender = new Thread(new ClientSender(socket, dos, sdata));
+                sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
                 sender.start();
 
                 etMsg.setText(null);
@@ -151,12 +130,12 @@ public class InChattingActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(!showMsg.isInterrupted()){
+            showMsg.interrupt();
         }
-        receiver.interrupt();
+        if(!getNewMsg.isInterrupted()){
+            getNewMsg.interrupt();
+        }
     }
 
     // 메시지 보내는 쓰레드
@@ -195,76 +174,6 @@ public class InChattingActivity extends AppCompatActivity {
         }
     }   // client sender end
 
-    // 메시지 받는 쓰레드
-    static class ClientReceiver extends Thread{
-        Context mContext;
-
-        ChatCommunication_Adapter chatCommunication_adapter;
-        ListView lvChat;
-
-        Handler handler = new Handler();
-
-        public ClientReceiver(Context context, ChatCommunication_Adapter adapter, ListView listView) {
-            this.mContext = context;
-            this.chatCommunication_adapter = adapter;
-            this.lvChat = listView;
-        }
-
-        public void run() {
-            // in 이 비어있는지 확인합니다.
-            if(in == null)
-                System.out.println("inChatnull" + in);
-            else
-                System.out.println("inChatnotnull" + in);
-
-            while(in != null) {//서버에서 받은 데이터를 뽑아냅니다.
-                try {
-                    final String getString = in.readUTF();    //1
-                    System.out.println("settttt" + getString);
-                    if(!TextUtils.isEmpty(getString)){
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss");
-                                String time = sdfNow.format(new Date(System.currentTimeMillis()));
-                                String sender = "";
-                                String receiver = "";
-                                String msg = "비어있음";
-                                int sync = 1;
-                                try {
-                                    JSONObject obj = new JSONObject(getString);
-                                    sender = obj.getString("sender");
-                                    receiver = obj.getString("receiver");
-                                    msg = obj.getString("msg");
-                                    sync = 1;
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                                System.out.println("in chat sender" + sender);
-                                System.out.println("in chat receiver" + receiver);
-                                System.out.println("in chat msg" + msg);
-                                Chat chat = new Chat(sender, receiver, msg, time, sync);
-                                chatCommunication_adapter.addItem(chat);
-                                lvChat.setAdapter(chatCommunication_adapter);
-                                lvChat.setSelection(chatCommunication_adapter.getCount()-1);
-
-                                String dis1 = sender+ "/" +receiver;
-                                String dis2 = receiver + "/" + sender;
-
-                                MsgDBHelper msgDBHelper = new MsgDBHelper(mContext);
-                                msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
-                            }
-                        });
-                    }
-                } catch(IOException e) {
-                    e.printStackTrace();
-                    break;
-                }
-            }
-        }
-    }   // client receiver end
-
     // 저장된 메시지 처음에 불러오는 쓰레드
     static class ShowMsg extends Thread{
         Context mContext;
@@ -295,4 +204,5 @@ public class InChattingActivity extends AppCompatActivity {
             });
         }
     }
+
 }

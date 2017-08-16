@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +31,13 @@ public class MainChatFragment extends Fragment {
     ListView lvChat;
     ChatList_Adapter clAdapter;
 
+    // 채팅방 목록 띄워주는 Thread
+    ShowRoom showRoom;
+    // 새로운 메시지가 도착하면 채팅방 순서 재정렬해주는 Thread
+    Thread orderRoom;
+    Handler handler;
+    int i = 0;
+
     public MainChatFragment(){
 
     }
@@ -37,6 +45,7 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Toast.makeText(getActivity().getApplicationContext(), "Create", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -58,10 +67,61 @@ public class MainChatFragment extends Fragment {
             }
         });
 
-        ShowRoom showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
-        showRoom.start();
-
         return layout;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        handler = new Handler();
+        orderRoom = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(!Thread.currentThread().isInterrupted()){
+                            Intent intent = getActivity().getIntent();
+                            i = intent.getIntExtra("change", 0);
+                            if(i==1){
+                                showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
+                                showRoom.start();
+                            }
+                            i = 0;
+                        }
+                    }
+                });
+            }
+        });
+
+        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
+        showRoom.start();
+        Toast.makeText(getActivity().getApplicationContext(), "Start", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Toast.makeText(getActivity().getApplicationContext(), "Resume", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        orderRoom.interrupt();
+        Toast.makeText(getActivity().getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Toast.makeText(getActivity().getApplicationContext(), "Stop", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(getActivity().getApplicationContext(), "Destroy", Toast.LENGTH_SHORT).show();
     }
 
     // 저장된 채팅방 처음에 불러오는 쓰레드
@@ -82,11 +142,18 @@ public class MainChatFragment extends Fragment {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    MsgDBHelper dbHelper = new MsgDBHelper(mContext);
-                    SQLiteDatabase db = dbHelper.getReadableDatabase();
+                    cla.claItem.clear();
+                    cla.notifyDataSetChanged();
+
+                    MsgDBHelper dbHelper = null;
+                    SQLiteDatabase db = null;
+                    Cursor c1 = null;
+
+                    dbHelper = new MsgDBHelper(mContext);
+                    db = dbHelper.getReadableDatabase();
 
                     String selectQuery = "SELECT * FROM chat_room ORDER BY ordered ASC;";
-                    Cursor c1 = db.rawQuery(selectQuery, null);
+                    c1 = db.rawQuery(selectQuery, null);
 
                     while (c1.moveToNext()){
                         String roomName = "";
@@ -128,6 +195,7 @@ public class MainChatFragment extends Fragment {
                         c2.close();
                     }
                     listView.setAdapter(cla);
+
                     c1.close();
                     db.close();
                     dbHelper.close();

@@ -1,6 +1,7 @@
 package com.together.linkalk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -51,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        // socket service 실행 -------------------
+        Intent socketIntent = new Intent(getApplicationContext(), SocketService.class);
+        startService(socketIntent);
+        // ---------------------------------------
 
         sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         nickname = sharedPreferences.getString("nickname", "");
