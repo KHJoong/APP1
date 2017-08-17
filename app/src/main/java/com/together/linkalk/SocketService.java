@@ -4,20 +4,33 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ListView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -36,6 +49,13 @@ public class SocketService extends Service{
     static DataInputStream in;
 
     String my_nickname;
+
+    MsgDBHelper msgDBHelper;
+    String dis1;
+    String dis2;
+    String sender;
+    String msg;
+    String time;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -116,10 +136,10 @@ public class SocketService extends Service{
                             @Override
                             public void run() {
                                 SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss");
-                                String time = sdfNow.format(new Date(System.currentTimeMillis()));
-                                String sender = "";
+                                time = sdfNow.format(new Date(System.currentTimeMillis()));
+                                sender = "";
                                 String receiver = "";
-                                String msg = "비어있음";
+                                msg = "비어있음";
                                 int sync = 1;
                                 try {
                                     JSONObject obj = new JSONObject(getString);
@@ -131,21 +151,44 @@ public class SocketService extends Service{
                                     e.printStackTrace();
                                 }
 
-                                String dis1 = sender+ "/" +receiver;
-                                String dis2 = receiver + "/" + sender;
+                                dis1 = sender+ "/" +receiver;
+                                dis2 = receiver + "/" + sender;
 
-                                MsgDBHelper msgDBHelper = new MsgDBHelper(mContext);
-                                msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
+                                msgDBHelper = new MsgDBHelper(mContext);
+//                                msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
 
-                                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
-                                // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
-                                Intent intent = new Intent();
-                                intent.setAction("com.together.broadcast.room.integer");
-                                intent.putExtra("reload", 1);
-                                sendBroadcast(intent);
+                                // 메시지가 왔는데 기존에 없는 방일 경우
+                                String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
+                                SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+                                Cursor c = db.rawQuery(checkExistRoom, null);
+                                int existRoom = c.getCount();
+                                if(existRoom==0){
+                                    JSONObject jsonObject = new JSONObject();
+                                    try {
+                                        jsonObject.put("sender", sender);
+                                        jsonObject.put("receiver", receiver);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    // 채팅방 DB 생성하기
+                                    GetChatRoom gcr = new GetChatRoom();
+                                    gcr.execute(jsonObject.toString());
+                                } else {
+                                    msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
+
+                                    // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                                    // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
+                                    // MainChatFragment
+                                    Intent intent = new Intent();
+                                    intent.setAction("com.together.broadcast.room.integer");
+                                    intent.putExtra("reload", 1);
+                                    sendBroadcast(intent);
+                                }
 
                                 // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
                                 // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+                                // InChattingActivity
                                 Intent intent2 = new Intent();
                                 intent2.setAction("com.together.broadcast.chat.integer");
                                 intent2.putExtra("plus", 1);
@@ -160,4 +203,106 @@ public class SocketService extends Service{
             }
         }
     }   // client receiver end
+
+    // 상대방이 말을 걸었을 경우 채팅방 번호 받아서 추가하는 Asynctask
+    class GetChatRoom extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try{
+                String send = params[0];
+
+                // 서버와 연결하기 위해 세션 아이디 불러와서 커넥트
+                SharedPreferences sharedPreferences = getSharedPreferences("maintain", Context.MODE_PRIVATE);
+                String sessionID = sharedPreferences.getString("sessionID", "");
+
+                Log.i("sessionID",sessionID);
+
+                URL url = new URL("http://www.o-ddang.com/linkalk/checkChatRoom.php");
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setDefaultUseCaches(false);
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setRequestMethod("POST");
+
+                httpURLConnection.setInstanceFollowRedirects( false );
+                if(!TextUtils.isEmpty(sessionID)) {
+                    httpURLConnection.setRequestProperty( "cookie", sessionID) ;
+                }
+
+                httpURLConnection.setRequestProperty("Accept", "application/json");
+                httpURLConnection.setRequestProperty("Content-type", "application/json");
+
+                OutputStream os = httpURLConnection.getOutputStream();
+                os.write(send.getBytes());
+                os.flush();
+
+                // 서버에서 채팅룸 번호랑 대화 상대 전달
+                int responseStatusCode = httpURLConnection.getResponseCode();
+                Log.d("responseStatusCode", "response code - " + responseStatusCode);
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                } else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+                bufferedReader.close();
+                return sb.toString().trim();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.i("MyFriendProfile", String.valueOf(s));
+            int roomNo = 0;
+            String relation = null;
+            try {
+                JSONObject object = new JSONObject(s);
+                roomNo = object.getInt("roomNo");
+                relation = object.getString("relation");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            // SQLite에 추가할 부분 chat_room table;
+            MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
+            mdbHelper.insertRoom(roomNo, relation);
+
+            msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
+
+            // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+            // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
+            // MainChatFragment
+            Intent intent = new Intent();
+            intent.setAction("com.together.broadcast.room.integer");
+            intent.putExtra("reload", 1);
+            sendBroadcast(intent);
+        }
+    }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
 }
