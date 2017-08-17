@@ -105,6 +105,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 } else if(sender.equals(p2)){
                     Chat chat = new Chat(p2, p1, msg, time, 1);
                     ad.addItem(chat);
+                    db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
                 }
             }while(c.moveToNext());
         }

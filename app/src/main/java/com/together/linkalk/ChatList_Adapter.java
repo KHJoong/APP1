@@ -58,6 +58,7 @@ public class ChatList_Adapter extends BaseAdapter {
             viewHolder.numMember = (TextView)view.findViewById(R.id.numMember);
             viewHolder.lastCommu = (TextView)view.findViewById(R.id.lastCommu);
             viewHolder.lastCommuTime = (TextView)view.findViewById(R.id.lastCommuTime);
+            viewHolder.numUnread = (TextView)view.findViewById(R.id.numUnread);
             view.setTag(viewHolder);
 
         } else {
@@ -91,6 +92,12 @@ public class ChatList_Adapter extends BaseAdapter {
         }
         viewHolder.lastCommu.setText(claItem.get(position).getLastCommunication());
         viewHolder.lastCommuTime.setText(last_time);
+        if(claItem.get(position).getNumUnread()==0){
+            viewHolder.numUnread.setVisibility(View.GONE);
+        } else {
+            viewHolder.numUnread.setVisibility(View.VISIBLE);
+            viewHolder.numUnread.setText(String.valueOf(claItem.get(position).getNumUnread()));
+        }
 
         return view;
     }

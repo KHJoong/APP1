@@ -10,13 +10,15 @@ public class Room {
     int numMember;
     String lastCommunication;
     String lastCommunicationTime;
+    int numUnread;
 
-    Room(int rnum, String rn, int nm, String lc, String lct){
+    Room(int rnum, String rn, int nm, String lc, String lct, int nu){
         roomNum = rnum;
         roomName = rn;
         numMember = nm;
         lastCommunication = lc;
         lastCommunicationTime = lct;
+        numUnread = nu;
     }
 
     public int getRoomNum() {
@@ -37,5 +39,9 @@ public class Room {
 
     public String getLastCommunicationTime() {
         return lastCommunicationTime;
+    }
+
+    public int getNumUnread(){
+        return numUnread;
     }
 }

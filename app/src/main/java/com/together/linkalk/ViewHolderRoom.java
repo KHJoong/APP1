@@ -11,4 +11,5 @@ public class ViewHolderRoom {
     TextView numMember;
     TextView lastCommu;
     TextView lastCommuTime;
+    TextView numUnread;
 }

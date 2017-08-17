@@ -140,6 +140,7 @@ public class MainChatFragment extends Fragment {
                         int numMember = 0;
                         String lastCom = "";
                         String lastComTime = "";
+                        int numUnread = 0;
 
                         int roomNo = c1.getInt(c1.getColumnIndex("roomNo"));
                         String relation = c1.getString(c1.getColumnIndex("relation"));
@@ -169,10 +170,15 @@ public class MainChatFragment extends Fragment {
                             }
                         }
 
-                        Room room = new Room(roomNo, roomName, numMember, lastCom, lastComTime);
+                        String selectQuery3 = "SELECT * FROM chat_msg WHERE roomNo='"+roomNo+"' and readed='1'";
+                        Cursor c3 = db.rawQuery(selectQuery3, null);
+                        numUnread = c3.getCount();
+
+                        Room room = new Room(roomNo, roomName, numMember, lastCom, lastComTime, numUnread);
                         cla.addItem(room);
 
                         c2.close();
+                        c3.close();
                     }
                     listView.setAdapter(cla);
 
