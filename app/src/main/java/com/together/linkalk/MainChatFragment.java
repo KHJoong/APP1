@@ -35,8 +35,7 @@ public class MainChatFragment extends Fragment {
 
     // 채팅방 목록 띄워주는 Thread
     ShowRoom showRoom;
-    // 새로운 메시지가 도착하면 채팅방 순서 재정렬해주는 Thread
-    Thread orderRoom;
+    // 새로운 메시지가 도착하면 채팅방 순서 재정렬해주는 broadcast
     IntentFilter intentFilter;
     BroadcastReceiver broadcastReceiver;
 
@@ -48,12 +47,12 @@ public class MainChatFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         intentFilter = new IntentFilter();
-        intentFilter.addAction("com.together.broadcast.integer");
+        intentFilter.addAction("com.together.broadcast.room.integer");
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int i = 0;
-                if(intent.getAction().equals("com.together.broadcast.integer")){
+                if(intent.getAction().equals("com.together.broadcast.room.integer")){
                     i = intent.getIntExtra("reload", 0);
                     if(i == 1){
                         showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
@@ -102,7 +101,6 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        orderRoom.interrupt();
         getActivity().unregisterReceiver(broadcastReceiver);
     }
 

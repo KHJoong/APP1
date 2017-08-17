@@ -1,7 +1,9 @@
 package com.together.linkalk;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -36,12 +38,6 @@ import java.util.Date;
 
 public class InChattingActivity extends AppCompatActivity {
 
-//    Socket socket;
-//    DataOutputStream dos;
-//    static DataInputStream in;
-//    String ip = "115.71.232.230"; // IP
-//    int port = 9999; // PORT번호
-
     ListView lvChat;
     ChatCommunication_Adapter ccAdapter;
 
@@ -53,8 +49,8 @@ public class InChattingActivity extends AppCompatActivity {
     String my_nickname;
     Thread sender;
     Thread showMsg;
-    Thread getNewMsg;
-//    Thread receiver;
+    IntentFilter intentFilter2;
+    BroadcastReceiver broadcastReceiver2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,17 +88,21 @@ public class InChattingActivity extends AppCompatActivity {
         showMsg.start();
 
         final Handler handler = new Handler();
-        // 새로 저장되는 메시지 불러오는 Thread
-        getNewMsg = new Thread(new Runnable() {
+        intentFilter2 = new IntentFilter();
+        intentFilter2.addAction("com.together.broadcast.chat.integer");
+        broadcastReceiver2 = new BroadcastReceiver() {
             @Override
-            public void run() {
-                while(!Thread.currentThread().isInterrupted()){
-                    MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
-                    msgDBHelper.continueSelectMsg(handler, my_nickname, other_nickname, lvChat, ccAdapter);
+            public void onReceive(Context context, Intent intent) {
+                int i = 0;
+                if(intent.getAction().equals("com.together.broadcast.chat.integer")){
+                    i = intent.getIntExtra("plus", 0);
+                    if(i == 1){
+                        MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
+                        msgDBHelper.continueSelectMsg(handler, my_nickname, other_nickname, lvChat, ccAdapter);
+                    }
                 }
             }
-        });
-        getNewMsg.start();
+        } ;
 
         // 메시지 전송 버튼
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +117,6 @@ public class InChattingActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String sdata = obj.toString();
-//                sender = new Thread(new ClientSender(socket, dos, sdata));
                 sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
                 sender.start();
 
@@ -128,13 +127,22 @@ public class InChattingActivity extends AppCompatActivity {
     }   // onCreate 끝
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver2, intentFilter2);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver2);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         if(!showMsg.isInterrupted()){
             showMsg.interrupt();
-        }
-        if(!getNewMsg.isInterrupted()){
-            getNewMsg.interrupt();
         }
     }
 
@@ -175,7 +183,7 @@ public class InChattingActivity extends AppCompatActivity {
     }   // client sender end
 
     // 저장된 메시지 처음에 불러오는 쓰레드
-    static class ShowMsg extends Thread{
+    class ShowMsg extends Thread{
         Context mContext;
         String peo1;
         String peo2;

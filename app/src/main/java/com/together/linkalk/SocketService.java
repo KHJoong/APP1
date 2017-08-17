@@ -137,11 +137,19 @@ public class SocketService extends Service{
                                 MsgDBHelper msgDBHelper = new MsgDBHelper(mContext);
                                 msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
 
-                                // 새로운 메시지가 추가됐음을 알리기 위한 Intent
+                                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                                // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
                                 Intent intent = new Intent();
-                                intent.setAction("com.together.broadcast.integer");
+                                intent.setAction("com.together.broadcast.room.integer");
                                 intent.putExtra("reload", 1);
                                 sendBroadcast(intent);
+
+                                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                                // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+                                Intent intent2 = new Intent();
+                                intent2.setAction("com.together.broadcast.chat.integer");
+                                intent2.putExtra("plus", 1);
+                                sendBroadcast(intent2);
                             }
                         });
                     }
