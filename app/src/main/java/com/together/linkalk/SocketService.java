@@ -138,9 +138,10 @@ public class SocketService extends Service{
                                 msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
 
                                 // 새로운 메시지가 추가됐음을 알리기 위한 Intent
-                                Intent intent = new Intent(mContext, MainChatFragment.class);
-                                intent.putExtra("change", 1);
-                                startActivity(intent);
+                                Intent intent = new Intent();
+                                intent.setAction("com.together.broadcast.integer");
+                                intent.putExtra("reload", 1);
+                                sendBroadcast(intent);
                             }
                         });
                     }

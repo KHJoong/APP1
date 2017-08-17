@@ -1,7 +1,9 @@
 package com.together.linkalk;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -35,8 +37,8 @@ public class MainChatFragment extends Fragment {
     ShowRoom showRoom;
     // 새로운 메시지가 도착하면 채팅방 순서 재정렬해주는 Thread
     Thread orderRoom;
-    Handler handler;
-    int i = 0;
+    IntentFilter intentFilter;
+    BroadcastReceiver broadcastReceiver;
 
     public MainChatFragment(){
 
@@ -45,7 +47,21 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toast.makeText(getActivity().getApplicationContext(), "Create", Toast.LENGTH_SHORT).show();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("com.together.broadcast.integer");
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int i = 0;
+                if(intent.getAction().equals("com.together.broadcast.integer")){
+                    i = intent.getIntExtra("reload", 0);
+                    if(i == 1){
+                        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
+                        showRoom.start();
+                    }
+                }
+            }
+        } ;
     }
 
     @Override
@@ -73,55 +89,21 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        handler = new Handler();
-        orderRoom = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        while(!Thread.currentThread().isInterrupted()){
-                            Intent intent = getActivity().getIntent();
-                            i = intent.getIntExtra("change", 0);
-                            if(i==1){
-                                showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
-                                showRoom.start();
-                            }
-                            i = 0;
-                        }
-                    }
-                });
-            }
-        });
-
         showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
         showRoom.start();
-        Toast.makeText(getActivity().getApplicationContext(), "Start", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(getActivity().getApplicationContext(), "Resume", Toast.LENGTH_SHORT).show();
+        getActivity().registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         orderRoom.interrupt();
-        Toast.makeText(getActivity().getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Toast.makeText(getActivity().getApplicationContext(), "Stop", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Toast.makeText(getActivity().getApplicationContext(), "Destroy", Toast.LENGTH_SHORT).show();
+        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     // 저장된 채팅방 처음에 불러오는 쓰레드
