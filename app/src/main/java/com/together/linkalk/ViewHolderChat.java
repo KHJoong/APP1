@@ -10,8 +10,5 @@ public class ViewHolderChat {
     TextView sender;
     TextView msg;
     TextView time;
-
-    TextView ot_sender;
-    TextView ot_msg;
-    TextView ot_time;
+    TextView date;
 }

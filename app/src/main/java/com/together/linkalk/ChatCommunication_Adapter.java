@@ -10,7 +10,11 @@ import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -23,6 +27,22 @@ public class ChatCommunication_Adapter extends BaseAdapter {
     ArrayList<Chat> ccaItem;
 
     ViewHolderChat viewHolder;
+
+    String savedDate;
+    String[] savedDateDis;
+    String savedYear;
+    String savedMonth;
+    String savedDay;
+    String savedHour;
+    String savedMin;
+    String saved2Date;
+    String[] saved2DateDis;
+    String saved2Year;
+    String saved2Month;
+    String saved2Day;
+
+
+
 
     ChatCommunication_Adapter(Context context){
         super();
@@ -53,21 +73,6 @@ public class ChatCommunication_Adapter extends BaseAdapter {
         String nickname = sharedPreferences.getString("nickname", "");
 
         if(view == null){
-//            if(sender.equals(nickname)){
-//                view = ((LayoutInflater)ccaContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.chatcommuni_me_frame, null);
-//                viewHolder = new ViewHolderChat();
-//
-//                viewHolder.sender = (TextView)view.findViewById(R.id.tv_my_nick);
-//                viewHolder.msg = (TextView)view.findViewById(R.id.tv_my_communi);
-//                viewHolder.time = (TextView)view.findViewById(R.id.tv_my_time);
-//            } else if(!sender.equals(nickname)){
-//                view = ((LayoutInflater)ccaContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.chatcommuni_other_frame, null);
-//                viewHolder = new ViewHolderChat();
-//
-//                viewHolder.ot_sender = (TextView)view.findViewById(R.id.tv_other_nick);
-//                viewHolder.ot_msg = (TextView)view.findViewById(R.id.tv_other_communi);
-//                viewHolder.ot_time = (TextView)view.findViewById(R.id.tv_other_time);
-//            }
 
             //--------------------------------------------------------------------------------------------
             view = ((LayoutInflater)ccaContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.chatcommuni_me_frame, null);
@@ -76,6 +81,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             viewHolder.sender = (TextView)view.findViewById(R.id.tv_my_nick);
             viewHolder.msg = (TextView)view.findViewById(R.id.tv_my_communi);
             viewHolder.time = (TextView)view.findViewById(R.id.tv_my_time);
+            viewHolder.date = (TextView)view.findViewById(R.id.tv_date);
             //--------------------------------------------------------------------------------------------
 
             view.setTag(viewHolder);
@@ -84,11 +90,47 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             viewHolder = (ViewHolderChat) view.getTag();
         }
 
+
+
         //--------------------------------------------------------------------------------------------
+        if(position==0){
+            savedDate = ccaItem.get(position).getTime();
+            savedDateDis = savedDate.split("/");
+            savedYear = savedDateDis[0];
+            savedMonth = savedDateDis[1];
+            savedDay = savedDateDis[2];
+            savedHour = savedDateDis[3];
+            savedMin = savedDateDis[4];
+
+            viewHolder.date.setVisibility(View.VISIBLE);
+            viewHolder.date.setText(savedYear + "년 " + savedMonth + "월 " + savedDay + "일");
+        } else {
+            saved2Date = ccaItem.get(position-1).getTime();
+            saved2DateDis = saved2Date.split("/");
+            saved2Year = saved2DateDis[0];
+            saved2Month = saved2DateDis[1];
+            saved2Day = saved2DateDis[2];
+
+            savedDate = ccaItem.get(position).getTime();
+            savedDateDis = savedDate.split("/");
+            savedYear = savedDateDis[0];
+            savedMonth = savedDateDis[1];
+            savedDay = savedDateDis[2];
+            savedHour = savedDateDis[3];
+            savedMin = savedDateDis[4];
+
+            if(saved2Year.equals(savedYear) && saved2Month.equals(savedMonth) && saved2Day.equals(savedDay)){
+                viewHolder.date.setVisibility(View.GONE);
+            } else {
+                viewHolder.date.setVisibility(View.VISIBLE);
+                viewHolder.date.setText(savedYear + "년 " + savedMonth + "월 " + savedDay + "일");
+            }
+        }
+
         if(sender.equals(nickname)){
             viewHolder.sender.setText(ccaItem.get(position).getSender());
             viewHolder.msg.setText(ccaItem.get(position).getMsg());
-            viewHolder.time.setText(ccaItem.get(position).getTime());
+            viewHolder.time.setText(savedHour + " : " + savedMin);
 
             viewHolder.msg.setBackgroundResource(R.drawable.mine);
 
@@ -107,7 +149,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
         }  else if(!sender.equals(nickname)){
             viewHolder.sender.setText(ccaItem.get(position).getSender());
             viewHolder.msg.setText(ccaItem.get(position).getMsg());
-            viewHolder.time.setText(ccaItem.get(position).getTime());
+            viewHolder.time.setText(savedHour + " : " + savedMin);
 
             viewHolder.msg.setBackgroundResource(R.drawable.other);
 
@@ -126,17 +168,6 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
         }
         //--------------------------------------------------------------------------------------------
-
-
-//        if(sender.equals(nickname)){
-//            viewHolder.sender.setText(ccaItem.get(position).getSender());
-//            viewHolder.msg.setText(ccaItem.get(position).getMsg());
-//            viewHolder.time.setText(ccaItem.get(position).getTime());
-//        } else if(!sender.equals(nickname)){
-//            viewHolder.ot_sender.setText(ccaItem.get(position).getSender());
-//            viewHolder.ot_msg.setText(ccaItem.get(position).getMsg());
-//            viewHolder.ot_time.setText(ccaItem.get(position).getTime());
-//        }
 
         return view;
     }
