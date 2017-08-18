@@ -162,23 +162,25 @@ public class MainChatFragment extends Fragment {
 
                         String selectQuery2 = "SELECT * FROM chat_msg WHERE roomNo='"+ roomNo +"';";
                         Cursor c2 = db.rawQuery(selectQuery2, null);
-                        int lastMsgNum = c2.getCount();
-                        while(c2.moveToNext()){
-                            if(c2.getInt(c2.getColumnIndex("msgNo")) == (lastMsgNum-1)){
-                                lastCom = c2.getString(c2.getColumnIndex("message"));
-                                lastComTime = c2.getString(c2.getColumnIndex("time"));
+                        if(c2.getCount()!=0){
+                            int lastMsgNum = c2.getCount();
+                            while(c2.moveToNext()){
+                                if(c2.getInt(c2.getColumnIndex("msgNo")) == (lastMsgNum-1)){
+                                    lastCom = c2.getString(c2.getColumnIndex("message"));
+                                    lastComTime = c2.getString(c2.getColumnIndex("time"));
+                                }
                             }
+
+                            String selectQuery3 = "SELECT * FROM chat_msg WHERE roomNo='"+roomNo+"' and readed='1'";
+                            Cursor c3 = db.rawQuery(selectQuery3, null);
+                            numUnread = c3.getCount();
+
+                            Room room = new Room(roomNo, roomName, numMember, lastCom, lastComTime, numUnread);
+                            cla.addItem(room);
+
+                            c2.close();
+                            c3.close();
                         }
-
-                        String selectQuery3 = "SELECT * FROM chat_msg WHERE roomNo='"+roomNo+"' and readed='1'";
-                        Cursor c3 = db.rawQuery(selectQuery3, null);
-                        numUnread = c3.getCount();
-
-                        Room room = new Room(roomNo, roomName, numMember, lastCom, lastComTime, numUnread);
-                        cla.addItem(room);
-
-                        c2.close();
-                        c3.close();
                     }
                     listView.setAdapter(cla);
 

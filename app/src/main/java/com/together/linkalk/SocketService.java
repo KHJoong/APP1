@@ -1,5 +1,9 @@
 package com.together.linkalk;
 
+import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +37,7 @@ import java.net.SocketAddress;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kimhj on 2017-08-16.
@@ -193,6 +198,28 @@ public class SocketService extends Service{
                                 intent2.setAction("com.together.broadcast.chat.integer");
                                 intent2.putExtra("plus", 1);
                                 sendBroadcast(intent2);
+
+                                // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분
+                                // com.together.linkalk.InChattingActivity
+                                ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+                                List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                                Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+                                if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
+                                    NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
+                                    Intent intent = new Intent(mContext, InChattingActivity.class);
+                                    intent.putExtra("Receiver", sender);
+                                    Notification.Builder builder = new Notification.Builder(mContext);
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                            .setTicker("Linkalk")
+                                            .setWhen(System.currentTimeMillis())
+                                            .setContentTitle(sender).setContentText(msg)
+                                            .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                                            .setContentIntent(pendingIntent)
+                                            .setAutoCancel(true)
+                                            .setOngoing(true);
+                                    notificationManager.notify(1, builder.build());
+                                }
                             }
                         });
                     }

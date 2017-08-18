@@ -109,7 +109,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Intent intent = getIntent();
+        if(intent != null){
+            int page = intent.getIntExtra("page", 0);
+            viewPager.setCurrentItem(page);
+        }
     } // onCreate End
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
 
     @Override
     protected void onStart() {

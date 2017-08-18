@@ -192,6 +192,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
                 intent.putExtra("Receiver", mem_nickname);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -216,6 +217,19 @@ public class MyFriendDetailProfile extends AppCompatActivity {
         });
 
     }   // onCreate 끝
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goMainActivity();
+    }
+
+    public void goMainActivity(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("page", 0);
+        startActivity(intent);
+        finish();
+    }
 
     // 친구 삭제 Asynctask
     class MyFriendDel extends AsyncTask<Void, Void, String> {
@@ -311,6 +325,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
+                                goMainActivity();
                             }
                         }).create().show();
             } else if(result.equals("success")){
@@ -327,7 +342,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                     }
                 }
                 myFriendEditor.commit();
-                finish();
+                goMainActivity();
             }
         }
     }

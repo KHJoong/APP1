@@ -146,6 +146,15 @@ public class InChattingActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("page", 2);
+        startActivity(intent);
+        finish();
+    }
+
     // 메시지 보내는 쓰레드
     static class ClientSender extends Thread{
         private Socket sockett;

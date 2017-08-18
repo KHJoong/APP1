@@ -118,12 +118,6 @@ public class MainNewFriendFragment extends Fragment {
             nowHour = nowArray[3];
             nowMin = nowArray[4];
             nowSec = nowArray[5];
-            Log.i("nowYear", nowYear);
-            Log.i("nowMonth", nowMonth);
-            Log.i("nowDay", nowDay);
-            Log.i("nowHour", nowHour);
-            Log.i("nowMin", nowMin);
-            Log.i("nowSec", nowSec);
             // 현재 시간 정보 받아와서 년, 월, 일, 시간, 분, 초로 분리 여기까지-------------------------------------
 
             for(int i=0;;i++){
@@ -141,12 +135,6 @@ public class MainNewFriendFragment extends Fragment {
                         saveHour = savetime[3];
                         saveMin = savetime[4];
                         saveSec = savetime[5];
-                        Log.i("saveYear", saveYear);
-                        Log.i("saveMonth", saveMonth);
-                        Log.i("saveDay", saveDay);
-                        Log.i("saveHour", saveHour);
-                        Log.i("saveMin", saveMin);
-                        Log.i("saveSec", saveSec);
                         if(nowYear.equals(saveYear)){
                             if(nowMonth.equals(saveMonth)){
                                 if(nowDay.equals(saveDay)){
@@ -355,12 +343,6 @@ public class MainNewFriendFragment extends Fragment {
                         saveHour = savetime[3];
                         saveMin = savetime[4];
                         saveSec = savetime[5];
-                        Log.i("saveYear", saveYear);
-                        Log.i("saveMonth", saveMonth);
-                        Log.i("saveDay", saveDay);
-                        Log.i("saveHour", saveHour);
-                        Log.i("saveMin", saveMin);
-                        Log.i("saveSec", saveSec);
                         if(nowYear.equals(saveYear)){
                            if(nowMonth.equals(saveMonth)){
                                if(nowDay.equals(saveDay)){

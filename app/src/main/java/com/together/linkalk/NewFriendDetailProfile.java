@@ -177,6 +177,19 @@ public class NewFriendDetailProfile extends AppCompatActivity {
         });
     }   // onCreate 끝
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goMainActivity();
+    }
+
+    public void goMainActivity(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("page", 1);
+        startActivity(intent);
+        finish();
+    }
+
     // 내 친구로 추가하는 Asynctask
     class MyFriendPlus extends AsyncTask<Void, Void, String> {
 
@@ -336,14 +349,14 @@ public class NewFriendDetailProfile extends AppCompatActivity {
                 }
                 newMemberEditor.commit();
                 Toast.makeText(getApplicationContext(), "친구가 성공적으로 추가되었습니다.", Toast.LENGTH_SHORT).show();
-                finish();
+                goMainActivity();
             } else if(result.equals("already")){
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(NewFriendDetailProfile.this);
                 alertDialogBuilder.setMessage("이미 등록된 친구입니다.")
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
-                                finish();
+                                goMainActivity();
                             }
                         }).create().show();
             }
