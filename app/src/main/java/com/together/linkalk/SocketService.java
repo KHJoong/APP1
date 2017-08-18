@@ -197,6 +197,8 @@ public class SocketService extends Service{
                                 Intent intent2 = new Intent();
                                 intent2.setAction("com.together.broadcast.chat.integer");
                                 intent2.putExtra("plus", 1);
+                                intent2.putExtra("msg", msg);
+                                intent2.putExtra("Receiver", sender);
                                 sendBroadcast(intent2);
 
                                 // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분
@@ -209,7 +211,7 @@ public class SocketService extends Service{
                                     Intent intent = new Intent(mContext, InChattingActivity.class);
                                     intent.putExtra("Receiver", sender);
                                     Notification.Builder builder = new Notification.Builder(mContext);
-                                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                                     builder.setSmallIcon(R.mipmap.ic_launcher_round)
                                             .setTicker("Linkalk")
                                             .setWhen(System.currentTimeMillis())
@@ -217,8 +219,8 @@ public class SocketService extends Service{
                                             .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
                                             .setContentIntent(pendingIntent)
                                             .setAutoCancel(true)
-                                            .setOngoing(true);
-                                    notificationManager.notify(1, builder.build());
+                                            .setOngoing(false);
+                                    notificationManager.notify((int)System.currentTimeMillis()/1000, builder.build());
                                 }
                             }
                         });

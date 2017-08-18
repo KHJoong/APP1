@@ -1,5 +1,8 @@
 package com.together.linkalk;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -100,6 +104,29 @@ public class InChattingActivity extends AppCompatActivity {
                         MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
                         msgDBHelper.continueSelectMsg(handler, my_nickname, other_nickname, lvChat, ccAdapter);
                     }
+                }
+
+                // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
+                String msg_sender = intent.getStringExtra("Receiver");
+                String msg = intent.getStringExtra("msg");
+                Log.i("notification msg_sender", msg_sender);
+                Log.i("notification msg", msg);
+                if(!msg_sender.equals(my_nickname) && !msg_sender.equals(other_nickname)){
+                    NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+                    Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
+                    noti_intent.putExtra("Receiver", msg_sender);
+                    noti_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    Notification.Builder builder = new Notification.Builder(getApplicationContext());
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis()/1000, noti_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                            .setTicker("Linkalk")
+                            .setWhen(System.currentTimeMillis())
+                            .setContentTitle(msg_sender).setContentText(msg)
+                            .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setOngoing(false);
+                    notificationManager.notify((int)System.currentTimeMillis()/1000, builder.build());
                 }
             }
         } ;

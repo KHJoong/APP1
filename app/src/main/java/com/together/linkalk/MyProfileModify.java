@@ -172,7 +172,7 @@ public class MyProfileModify extends AppCompatActivity {
                     UpdateMyProfile ump = new UpdateMyProfile();
                     ump.execute();
 
-                    finish();
+                    goMainActivity();
                 } else if(status.equals("NOT")){
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyProfileModify.this);
                     // AlertDialog 셋팅
@@ -180,7 +180,7 @@ public class MyProfileModify extends AppCompatActivity {
                             .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
-                                    finish();
+                                    goMainActivity();
                                 }
                             }).create().show();
                 }
@@ -188,6 +188,19 @@ public class MyProfileModify extends AppCompatActivity {
         });
 
     } // onCreate 끝
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goMainActivity();
+    }
+
+    public void goMainActivity(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("page", 3);
+        startActivity(intent);
+        finish();
+    }
 
     // 업데이트 된 개인 프로필을 서버에 업데이트 하는 Asynctask
     class UpdateMyProfile extends AsyncTask<Void, Void, String> {
