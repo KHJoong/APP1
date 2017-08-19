@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -87,6 +88,7 @@ public class MemberJoinActivity extends AppCompatActivity {
     String sd_nickname;
     String sd_language;
     String sd_token;
+    String sd_timezone;
 
     JSONObject jsonObject = new JSONObject();
 
@@ -238,6 +240,7 @@ public class MemberJoinActivity extends AppCompatActivity {
                         sd_nickname = tv_nickname.getText().toString();
                         sd_name = sd_gname + " " + sd_fname;
                         sd_token = FirebaseInstanceId.getInstance().getToken();
+                        sd_timezone = TimeZone.getDefault().getID();
 
                         // email check
                         if(sd_email.indexOf(" ")==0 || sd_email.length()==0 || sd_email.indexOf("@")==0){
@@ -292,6 +295,7 @@ public class MemberJoinActivity extends AppCompatActivity {
                             jsonObject.put("language", sd_language);
                             jsonObject.put("type", logintype);
                             jsonObject.put("token", sd_token);
+                            jsonObject.put("timezone", sd_timezone);
 
                             String senddata = jsonObject.toString();
                             Log.i("member info json : ", senddata);
@@ -322,6 +326,7 @@ public class MemberJoinActivity extends AppCompatActivity {
                         sd_name = personname;
                         sd_nickname = tv_nickname.getText().toString();
                         sd_token = FirebaseInstanceId.getInstance().getToken();
+                        sd_timezone = TimeZone.getDefault().getID();
 
                         // language check
                         if(sd_language.equals("Select your language")){
@@ -339,6 +344,7 @@ public class MemberJoinActivity extends AppCompatActivity {
                             jsonObject.put("language", sd_language);
                             jsonObject.put("type", logintype);
                             jsonObject.put("token", sd_token);
+                            jsonObject.put("timezone", sd_timezone);
 
                             String senddata = jsonObject.toString();
                             Log.i("member info json : ", senddata);

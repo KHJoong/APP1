@@ -15,7 +15,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.ListView;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,6 +79,10 @@ public class SocketService extends Service{
 
         // 메시지 수신 쓰레드 실행
         receiver = new Thread(new MsgReceiver(getApplicationContext()));
+
+        // 토큰 업데이트 쓰레드 실행
+        UpdateMyToken umt = new UpdateMyToken();
+        umt.execute();
 
         // 새로운 소켓 선언
         socket = new Socket();
@@ -334,4 +339,66 @@ public class SocketService extends Service{
             sendBroadcast(intent);
         }
     }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
+
+    // 혹시 바꼈을 지 모르는 Token 값을 서버에 업데이트 하는 Asynctask
+    class UpdateMyToken extends AsyncTask<Void, Void, Void> {
+
+        JSONObject object = new JSONObject();
+        String sessionID;
+        String token;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            SharedPreferences sharedPreferences = getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            sessionID = sharedPreferences.getString("sessionID", "");
+
+            try {
+                object.put("token", FirebaseInstanceId.getInstance().getToken());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            token = object.toString();
+        } // onPreExecute 끝
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try{
+                // 서버에 개인 프로필을 업데이트하기 위해 요청하는 부분
+                URL url = new URL("http://www.o-ddang.com/linkalk/updateMyToken.php");
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+
+                httpURLConnection.setDefaultUseCaches(false);
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setRequestMethod("POST");
+
+                httpURLConnection.setInstanceFollowRedirects( false );
+                if(!TextUtils.isEmpty(sessionID)) {
+                    httpURLConnection.setRequestProperty( "cookie", sessionID) ;
+                }
+
+                httpURLConnection.setRequestProperty("Accept", "application/json");
+                httpURLConnection.setRequestProperty("Content-type", "application/json");
+
+                OutputStream os = httpURLConnection.getOutputStream();
+                os.write(token.getBytes());
+                os.flush();
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }   // onDoing 끝
+    }   // My Token Update 끝
+
 }
