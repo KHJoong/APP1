@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -91,6 +93,23 @@ public class InChattingActivity extends AppCompatActivity {
         showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
         showMsg.start();
 
+        // 방 번호 찾는 쿼리
+        String dis1 = my_nickname+"/"+other_nickname;
+        String dis2 = other_nickname+"/"+my_nickname;
+        String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+        SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        int rn = 0;
+        if(c.moveToFirst()){
+            rn =  c.getInt(c.getColumnIndex("roomNo"));
+        }
+        c.close();
+        db.close();
+        // notification 매니저 생성
+        NotificationManager nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        // 등록된 notification 을 제거 한다.
+        nm.cancel(rn);
+
         final Handler handler = new Handler();
         intentFilter2 = new IntentFilter();
         intentFilter2.addAction("com.together.broadcast.chat.integer");
@@ -106,11 +125,24 @@ public class InChattingActivity extends AppCompatActivity {
                     }
                 }
 
+                String dis1 = my_nickname+ "/" +other_nickname;
+                String dis2 = other_nickname + "/" + my_nickname;
+
                 // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
                 String msg_sender = intent.getStringExtra("Receiver");
                 String msg = intent.getStringExtra("msg");
                 Log.i("notification msg_sender", msg_sender);
                 Log.i("notification msg", msg);
+                // 방 번호 찾는 쿼리
+                String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+                SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+                Cursor c = db.rawQuery(query, null);
+                int rn = 0;
+                if(c.moveToFirst()){
+                    rn =  c.getInt(c.getColumnIndex("roomNo"));
+                }
+                c.close();
+                db.close();
                 if(!msg_sender.equals(my_nickname) && !msg_sender.equals(other_nickname)){
                     NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                     Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
@@ -126,7 +158,7 @@ public class InChattingActivity extends AppCompatActivity {
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true)
                             .setOngoing(false);
-                    notificationManager.notify((int)System.currentTimeMillis()/1000, builder.build());
+                    notificationManager.notify(rn, builder.build());
                 }
             }
         } ;

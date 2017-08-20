@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,6 +84,10 @@ public class SocketService extends Service{
         // 토큰 업데이트 쓰레드 실행
         UpdateMyToken umt = new UpdateMyToken();
         umt.execute();
+
+        // 소켓 연결 안되었을 때 저장된 메시지 받아오는 asynctask 실행
+        GetTmpMsg getTmpMsg = new GetTmpMsg(getApplicationContext());
+        getTmpMsg.execute();
 
         // 새로운 소켓 선언
         socket = new Socket();
@@ -206,11 +211,19 @@ public class SocketService extends Service{
                                 intent2.putExtra("Receiver", sender);
                                 sendBroadcast(intent2);
 
-                                // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분
+                                // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
                                 // com.together.linkalk.InChattingActivity
                                 ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
                                 List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
                                 Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+                                // 방 번호 찾는 쿼리
+                                String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+                                db = msgDBHelper.getReadableDatabase();
+                                c = db.rawQuery(query, null);
+                                int rn = 0;
+                                if(c.moveToFirst()){
+                                    rn =  c.getInt(c.getColumnIndex("roomNo"));
+                                }
                                 if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
                                     NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
                                     Intent intent = new Intent(mContext, InChattingActivity.class);
@@ -225,8 +238,10 @@ public class SocketService extends Service{
                                             .setContentIntent(pendingIntent)
                                             .setAutoCancel(true)
                                             .setOngoing(false);
-                                    notificationManager.notify((int)System.currentTimeMillis()/1000, builder.build());
+                                    notificationManager.notify(rn, builder.build());
                                 }
+                                c.close();
+                                db.close();
                             }
                         });
                     }
@@ -400,5 +415,210 @@ public class SocketService extends Service{
             return null;
         }   // onDoing 끝
     }   // My Token Update 끝
+
+    // 소켓 연결이 끊겨서 받지 못했던 메시지를 받아오는 Asynctask
+    class GetTmpMsg extends AsyncTask<Void, Void, String> {
+
+        Context mContext;
+
+        JSONObject object = new JSONObject();
+        String sessionID;
+        String mynickname;
+
+        public GetTmpMsg(Context context){
+            mContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            SharedPreferences sharedPreferences = getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            sessionID = sharedPreferences.getString("sessionID", "");
+            mynickname = sharedPreferences.getString("nickname", "");
+
+        } // onPreExecute 끝
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try{
+                String getData = "1";
+                object.put("request", getData);
+                object.put("nickname", mynickname);
+
+                URL url = new URL("http://www.o-ddang.com/linkalk/getTmpMsg.php");
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setDefaultUseCaches(false);
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setRequestMethod("POST");
+
+                httpURLConnection.setInstanceFollowRedirects( false );
+                if(!TextUtils.isEmpty(sessionID)) {
+                    httpURLConnection.setRequestProperty( "cookie", sessionID) ;
+                }
+
+                httpURLConnection.setRequestProperty("Accept", "application/json");
+                httpURLConnection.setRequestProperty("Content-type", "application/json");
+
+                OutputStream os = httpURLConnection.getOutputStream();
+                os.write(object.toString().getBytes());
+                os.flush();
+
+                // 서버 리턴
+                int responseStatusCode = httpURLConnection.getResponseCode();
+                Log.d("responseStatusCode", "response code - " + responseStatusCode);
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                } else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+                bufferedReader.close();
+                return sb.toString().trim();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }   // onDoing 끝
+
+        @Override
+        protected void onPostExecute(final String s) {
+            super.onPostExecute(s);
+            Handler handler = new Handler();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int n;
+
+                        if(!TextUtils.isEmpty(s)){
+                            JSONObject object1 = new JSONObject(s);
+                            JSONArray array = object1.getJSONArray("tmpmsg");
+
+                            for(n=0; n<array.length(); n++) {
+                                String s_obj = array.getString(n);
+                                JSONObject obj2 = new JSONObject(s_obj);
+
+                                String msgJson = obj2.getString("message");
+                                time = obj2.getString("time");
+                                JSONObject obj3 = new JSONObject(msgJson);
+                                sender = obj3.getString("sender");
+                                String receiver = obj3.getString("receiver");
+                                msg = obj3.getString("msg");
+
+                                dis1 = sender+ "/" +receiver;
+                                dis2 = receiver + "/" + sender;
+
+                                msgDBHelper = new MsgDBHelper(mContext);
+
+                                // 메시지가 왔는데 기존에 없는 방일 경우
+                                String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
+                                SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+                                Cursor c = db.rawQuery(checkExistRoom, null);
+                                int existRoom = c.getCount();
+                                if(existRoom==0){
+                                    JSONObject jsonObject = new JSONObject();
+                                    try {
+                                        jsonObject.put("sender", sender);
+                                        jsonObject.put("receiver", receiver);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    // 채팅방 DB 생성하기
+                                    GetChatRoom gcr = new GetChatRoom();
+                                    gcr.execute(jsonObject.toString());
+                                } else {
+                                    msgDBHelper.insertMsg(dis1, dis2, sender, msg, time, 1, 1);
+
+                                    // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                                    // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
+                                    // MainChatFragment
+                                    Intent intent = new Intent();
+                                    intent.setAction("com.together.broadcast.room.integer");
+                                    intent.putExtra("reload", 1);
+                                    sendBroadcast(intent);
+                                }
+
+                                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                                // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+                                // InChattingActivity
+                                Intent intent2 = new Intent();
+                                intent2.setAction("com.together.broadcast.chat.integer");
+                                intent2.putExtra("plus", 1);
+                                intent2.putExtra("msg", msg);
+                                intent2.putExtra("Receiver", sender);
+                                sendBroadcast(intent2);
+
+                                // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분
+                                // com.together.linkalk.InChattingActivity
+                                ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+                                List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                                Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+                                // 방 번호 찾는 쿼리
+                                String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+                                db = msgDBHelper.getReadableDatabase();
+                                c = db.rawQuery(query, null);
+                                int rn = 0;
+                                if(c.moveToFirst()){
+                                    rn =  c.getInt(c.getColumnIndex("roomNo"));
+                                }
+                                if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
+                                    NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
+                                    Intent intent = new Intent(mContext, InChattingActivity.class);
+                                    intent.putExtra("Receiver", sender);
+                                    Notification.Builder builder = new Notification.Builder(mContext);
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                            .setTicker("Linkalk")
+                                            .setWhen(System.currentTimeMillis())
+                                            .setContentTitle(sender).setContentText(msg)
+                                            .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                                            .setContentIntent(pendingIntent)
+                                            .setAutoCancel(true)
+                                            .setOngoing(false);
+                                    notificationManager.notify(rn, builder.build());
+                                }
+                                c.close();
+                                db.close();
+                            }
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }
+
+    }   // GetTmpMsg 끝
 
 }
