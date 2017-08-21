@@ -93,6 +93,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
 
         //--------------------------------------------------------------------------------------------
+        // 채팅방 날짜 변하는날 날짜 알려주는 부분
         if(position==0){
             savedDate = ccaItem.get(position).getTime();
             savedDateDis = savedDate.split("/");
@@ -127,9 +128,10 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             }
         }
 
+        // 채팅방 메시지 띄워주는 부분
         if(sender.equals(nickname)){
             viewHolder.sender.setText(ccaItem.get(position).getSender());
-            viewHolder.msg.setText(ccaItem.get(position).getMsg());
+            viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
             viewHolder.time.setText(savedHour + " : " + savedMin);
 
             viewHolder.msg.setBackgroundResource(R.drawable.mine);
@@ -148,7 +150,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
         }  else if(!sender.equals(nickname)){
             viewHolder.sender.setText(ccaItem.get(position).getSender());
-            viewHolder.msg.setText(ccaItem.get(position).getMsg());
+            viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
             viewHolder.time.setText(savedHour + " : " + savedMin);
 
             viewHolder.msg.setBackgroundResource(R.drawable.other);

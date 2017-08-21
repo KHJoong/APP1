@@ -8,13 +8,15 @@ public class Chat {
     String sender;
     String Receiver;
     String msg;
+    String transmsg;
     String time;
     int sync;
 
-    Chat(String S, String R, String M, String T, int s){
+    Chat(String S, String R, String M, String TM, String T, int s){
         sender = S;
         Receiver = R;
         msg = M;
+        transmsg = TM;
         time = T;
         sync = s;
     }
@@ -29,6 +31,10 @@ public class Chat {
 
     public String getMsg() {
         return msg;
+    }
+
+    public String getTransmsg(){
+        return transmsg;
     }
 
     public String getTime() {

@@ -26,7 +26,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS chat_room (roomNo INTEGER, relation TEXT, ordered INTEGER);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS chat_msg (roomNo INTEGER, msgNo INTEGER, sender TEXT, message TEXT, time TEXT, readed INTEGER, sync INTEGER);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS chat_msg (roomNo INTEGER, msgNo INTEGER, sender TEXT, message TEXT, transmsg TEXT, time TEXT, readed INTEGER, sync INTEGER);");
     }
 
     @Override
@@ -44,7 +44,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         }
     }
 
-    public void insertMsg(String dis1, String dis2, String sender, String msg, String time, int readed, int sync){
+    public void insertMsg(String dis1, String dis2, String sender, String msg, String transmsg, String time, int readed, int sync){
         SQLiteDatabase db = getWritableDatabase();
 
         // 어떤 방인지, 방 번호 찾는 쿼리
@@ -63,7 +63,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         int mn = cursor.getCount();
 
         // 메시지 가장 마지막 번호에 받은 메세지 추가하기
-        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+msg+"', '"+time+"', '"+readed+"', '"+sync+"');");
+        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+msg+"', '"+transmsg+"', '"+time+"', '"+readed+"', '"+sync+"');");
 
         // 새로 메시지가 도착한 채팅방의 순위를 0으로 땡겨주는 부분
         // 먼저 채팅방의 순서를 읽어오고
@@ -105,13 +105,14 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 int mn = c.getInt(1);
                 String sender = c.getString(2);
                 String msg = c.getString(3);
-                String time = c.getString(4);
+                String transmsg = c.getString(4);
+                String time = c.getString(5);
                 if(sender.equals(p1)){
-                    Chat chat = new Chat(sender, p2, msg, time, 1);
+                    Chat chat = new Chat(sender, p2, msg, transmsg, time, 1);
                     ad.addItem(chat);
                     db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
                 } else if(sender.equals(p2)){
-                    Chat chat = new Chat(p2, p1, msg, time, 1);
+                    Chat chat = new Chat(p2, p1, msg, transmsg, time, 1);
                     ad.addItem(chat);
                     db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
                 }
@@ -144,13 +145,14 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 int mn = c.getInt(1);
                 String sender = c.getString(2);
                 String msg = c.getString(3);
-                String time = c.getString(4);
+                String transmsg = c.getString(4);
+                String time = c.getString(5);
                 if(sender.equals(p1)){
-                    Chat chat = new Chat(sender, p2, msg, time, 1);
+                    Chat chat = new Chat(sender, p2, msg, transmsg, time, 1);
                     ad.addItem(chat);
                     db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
                 } else if(sender.equals(p2)){
-                    Chat chat = new Chat(p2, p1, msg, time, 1);
+                    Chat chat = new Chat(p2, p1, msg, transmsg, time, 1);
                     ad.addItem(chat);
                     db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
                 }

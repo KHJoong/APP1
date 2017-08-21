@@ -517,6 +517,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             String nickname= null;
             String type= null;
             String sessionID = null;
+            String language = null;
             try {
                 JSONObject jsonObject = new JSONObject(s);
                 isLogged = jsonObject.getString("isLogged");
@@ -524,6 +525,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     nickname = jsonObject.getString("nickname");
                     type = jsonObject.getString("type");
                     sessionID = jsonObject.getString("PHPSESSID");  //session2
+                    language = jsonObject.getString("language");
                     Log.i("loginactivity sessionid", sessionID);
                 } else {
                     type = jsonObject.getString("type");
@@ -538,6 +540,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 editor.putString("nickname", nickname);
                 editor.putString("type", type);
                 editor.putString("sessionID", "PHPSESSID="+sessionID);  //session2
+                editor.putString("language", language);
                 editor.commit();
 
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -646,6 +649,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             String type= null;
             String wrongPwd= null;
             String sessionID=null;                                     //session2
+            String language=null;
             try {
                 JSONObject jsonObject = new JSONObject(s);
                 isLogged = jsonObject.getString("isLogged");
@@ -653,6 +657,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     nickname = jsonObject.getString("nickname");
                     type = jsonObject.getString("type");
                     sessionID = jsonObject.getString("PHPSESSID");  //session2
+                    language = jsonObject.getString("language");
                     Log.i("loginactivity sessionid", sessionID);    //session2
                 } else if(isLogged.equals("NO")){
                     wrongPwd = jsonObject.getString("wrongPwd");
@@ -667,6 +672,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 editor.putString("nickname", nickname);
                 editor.putString("type", type);
                 editor.putString("sessionID", "PHPSESSID="+sessionID);  //session2
+                editor.putString("language", language);
                 editor.commit();
 
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);

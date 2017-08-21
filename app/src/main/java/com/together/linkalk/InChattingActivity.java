@@ -53,6 +53,7 @@ public class InChattingActivity extends AppCompatActivity {
     MsgDBHelper msgDBHelper;
     String other_nickname;
     String my_nickname;
+    String my_language;
     Thread sender;
     Thread showMsg;
     IntentFilter intentFilter2;
@@ -88,6 +89,7 @@ public class InChattingActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         my_nickname = sharedPreferences.getString("nickname", "");
+        my_language = sharedPreferences.getString("language", "");
 
         // 저장된 메시지 불러오는 Thread 실행
         showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
@@ -172,6 +174,7 @@ public class InChattingActivity extends AppCompatActivity {
                     obj.put("sender", my_nickname);
                     obj.put("receiver", other_nickname);
                     obj.put("msg", etMsg.getText().toString());
+                    obj.put("language", my_language);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -203,6 +206,7 @@ public class InChattingActivity extends AppCompatActivity {
         if(!showMsg.isInterrupted()){
             showMsg.interrupt();
         }
+        finish();
     }
 
     @Override

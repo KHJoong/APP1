@@ -166,7 +166,7 @@ public class MainChatFragment extends Fragment {
                             int lastMsgNum = c2.getCount();
                             while(c2.moveToNext()){
                                 if(c2.getInt(c2.getColumnIndex("msgNo")) == (lastMsgNum-1)){
-                                    lastCom = c2.getString(c2.getColumnIndex("message"));
+                                    lastCom = c2.getString(c2.getColumnIndex("transmsg"));
                                     lastComTime = c2.getString(c2.getColumnIndex("time"));
                                 }
                             }
