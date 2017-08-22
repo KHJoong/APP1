@@ -177,8 +177,11 @@ public class SocketService extends Service{
                                 dis1 = sender+ "/" +receiver;
                                 dis2 = receiver + "/" + sender;
 
-                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
-                                rtm.start();
+//                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
+//                                rtm.start();
+
+                                returnTransMsg rtm = new returnTransMsg(mContext);
+                                rtm.execute(sender, msg, lan);
 
                             }
                         });
@@ -477,8 +480,11 @@ public class SocketService extends Service{
 
                                 msgDBHelper = new MsgDBHelper(mContext);
 
-                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
-                                rtm.start();
+//                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
+//                                rtm.start();
+
+                                returnTransMsg rtm = new returnTransMsg(mContext);
+                                rtm.execute(sender, msg, lan);
                             }
                         }
                     } catch (JSONException e) {
@@ -492,364 +498,553 @@ public class SocketService extends Service{
     }   // GetTmpMsg 끝
 
     // 메시지 번역해서 받아오는 쓰레드
-    class returnTransMsg extends Thread{
-        String clientId = "lIIpx5B_n000ent6_E8X";
-        String clientSecret = "m0OA6GEKuH";
+//    class returnTransMsgg extends Thread{
+//        String clientId = "lIIpx5B_n000ent6_E8X";
+//        String clientSecret = "m0OA6GEKuH";
+//
+//        SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
+//        String mLan = sharedPreferences.getString("language", "");
+//
+//        Context mContext;
+//
+//        returnTransMsgg(Context context, String message, String language) {
+//            mContext = context;
+//            pre_msg = message;
+//            oLan = language;
+//        }
+//
+//        public void run(){
+//            if(!my_nickname.equals(sender)){
+//                if((mLan.equals("Korean")&&oLan.equals("Chinese")) || (mLan.equals("Chinese")&&oLan.equals("Korean")) || (mLan.equals("Korean")&&oLan.equals("English")) || (mLan.equals("English")&&oLan.equals("Korean"))){
+//                    try{
+//                        String apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
+//                        URL url = new URL(apiUrl);
+//                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        if(mLan.equals("Korean")&&oLan.equals("Chinese")){
+//                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
+//                        } else if (mLan.equals("Chinese")&&oLan.equals("Korean")){
+//                            postParams = "source=ko&target=zh-CN&text=" + pre_msg;
+//                        } else if (mLan.equals("Korean")&&oLan.equals("English")){
+//                            postParams = "source=en&target=ko&text=" + pre_msg;
+//                        } else if (mLan.equals("English")&&oLan.equals("Korean")){
+//                            postParams = "source=ko&target=en&text=" + pre_msg;
+//                        }
+//                        con.setDoOutput(true);
+//                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        int responseCode = con.getResponseCode();
+//                        BufferedReader br;
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        String inputLine;
+//                        StringBuffer response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        post_msg = response.toString();
+//                    } catch (Exception e){
+//                        System.out.println("papagoErrorMsg : " + e);
+//                    }
+//                } else if((mLan.equals("English")&&oLan.equals("Chinese")) || (mLan.equals("Chinese")&&oLan.equals("English"))) {
+//                    // 영어 또는 중국어를 먼저 한국어로 변경
+//                    try{
+//                        String apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
+//                        URL url = new URL(apiUrl);
+//                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        if(oLan.equals("Chinese")){
+//                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
+//                        } else if (oLan.equals("English")){
+//                            postParams = "source=en&target=ko&text=" + pre_msg;
+//                        }
+//                        con.setDoOutput(true);
+//                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        int responseCode = con.getResponseCode();
+//                        BufferedReader br;
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        String inputLine;
+//                        StringBuffer response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        String postMsg_tmp = response.toString();
+//
+//                        try {
+//                            JSONObject ob = new JSONObject(postMsg_tmp);
+//                            JSONObject ob1 = new JSONObject(ob.getString("message"));
+//                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
+//                            postMsg_tmp = ob2.getString("translatedText");
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
+//                        apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
+//                        url = new URL(apiUrl);
+//                        con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        if(mLan.equals("English")){
+//                            postParams = "source=ko&target=en&text=" + postMsg_tmp;
+//                        } else if (mLan.equals("Chinese")){
+//                            postParams = "source=ko&target=zh-CN&text=" + postMsg_tmp;
+//                        }
+//                        con.setDoOutput(true);
+//                        wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        responseCode = con.getResponseCode();
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        post_msg = response.toString();
+//                    } catch (Exception e){
+//                        System.out.println(e);
+//                    }
+//                } else if((mLan.equals("Korean")&&oLan.equals("Japanese")) || (mLan.equals("Japanese")&&oLan.equals("Korean"))){
+//                    try{
+//                        String apiURL = "https://openapi.naver.com/v1/language/translate";
+//                        URL url = new URL(apiURL);
+//                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        // post request
+//                        if(mLan.equals("Korean")&&oLan.equals("Japanese")){
+//                            postParams = "source=ja&target=ko&text=" + pre_msg;
+//                        } else if (mLan.equals("Japanese")&&oLan.equals("Korean")){
+//                            postParams = "source=ko&target=ja&text=" + pre_msg;
+//                        }
+//                        con.setDoOutput(true);
+//                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        int responseCode = con.getResponseCode();
+//                        BufferedReader br;
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        String inputLine;
+//                        StringBuffer response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        post_msg = response.toString();
+//                    } catch (Exception e){
+//                        System.out.println(e);
+//                    }
+//                } else if ((mLan.equals("Chinese")&&oLan.equals("Japanese")) || (mLan.equals("Japanese")&&oLan.equals("Chinese"))) {
+//                    try{
+//                        String apiURL = "";
+//                        URL url = null;
+//                        HttpURLConnection con = null;
+//                        // post request
+//                        if(oLan.equals("Japanese")){
+//                            apiURL = "https://openapi.naver.com/v1/language/translate";
+//                            postParams = "source=ja&target=ko&text=" + pre_msg;
+//                        } else if (oLan.equals("Chinese")){
+//                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
+//                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
+//                        }
+//                        url = new URL(apiURL);
+//                        con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        con.setDoOutput(true);
+//                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        int responseCode = con.getResponseCode();
+//                        BufferedReader br;
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        String inputLine;
+//                        StringBuffer response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        String postMsg_tmp = response.toString();
+//
+//                        try {
+//                            JSONObject ob = new JSONObject(postMsg_tmp);
+//                            JSONObject ob1 = new JSONObject(ob.getString("message"));
+//                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
+//                            postMsg_tmp = ob2.getString("translatedText");
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
+//                        // post request
+//                        if(mLan.equals("Chinese")){
+//                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
+//                            postParams = "source=ko&target=zh-CN&text=" + postMsg_tmp;
+//                        } else if (mLan.equals("Japanese")){
+//                            apiURL = "https://openapi.naver.com/v1/language/translate";
+//                            postParams = "source=ko&target=ja&text=" + postMsg_tmp;
+//                        }
+//                        url = new URL(apiURL);
+//                        con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        con.setDoOutput(true);
+//                        wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        responseCode = con.getResponseCode();
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        post_msg = response.toString();
+//                    } catch (Exception e){
+//                        System.out.println(e);
+//                    }
+//                } else if ((mLan.equals("Japanese")&&oLan.equals("English")) || (mLan.equals("English")&&oLan.equals("Japanese"))) {
+//                    try{
+//                        String apiURL = "";
+//                        URL url = null;
+//                        HttpURLConnection con = null;
+//                        // post request
+//                        if(oLan.equals("English")){
+//                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
+//                            postParams = "source=en&target=ko&text=" + pre_msg;
+//                        } else if (oLan.equals("Japanese")){
+//                            apiURL = "https://openapi.naver.com/v1/language/translate";
+//                            postParams = "source=jaN&target=ko&text=" + pre_msg;
+//                        }
+//                        url = new URL(apiURL);
+//                        con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        con.setDoOutput(true);
+//                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        int responseCode = con.getResponseCode();
+//                        BufferedReader br;
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        String inputLine;
+//                        StringBuffer response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        String postMsg_tmp = response.toString();
+//
+//                        try {
+//                            JSONObject ob = new JSONObject(postMsg_tmp);
+//                            JSONObject ob1 = new JSONObject(ob.getString("message"));
+//                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
+//                            postMsg_tmp = ob2.getString("translatedText");
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
+//                        // post request
+//                        if(mLan.equals("Japanese")){
+//                            apiURL = "https://openapi.naver.com/v1/language/translate";
+//                            postParams = "source=ko&target=ja&text=" + postMsg_tmp;
+//                        } else if (mLan.equals("English")){
+//                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
+//                            postParams = "source=ko&target=en&text=" + postMsg_tmp;
+//                        }
+//                        url = new URL(apiURL);
+//                        con = (HttpURLConnection)url.openConnection();
+//                        con.setRequestMethod("POST");
+//                        con.setRequestProperty("X-Naver-Client-Id", clientId);
+//                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//                        con.setDoOutput(true);
+//                        wr = new DataOutputStream(con.getOutputStream());
+//                        wr.writeBytes(postParams);
+//                        wr.flush();
+//                        wr.close();
+//
+//                        // 서버 응답 - 번역 메시지
+//                        responseCode = con.getResponseCode();
+//                        if(responseCode==200) { // 정상 호출
+//                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//                        } else {  // 에러 발생
+//                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//                        }
+//                        response = new StringBuffer();
+//                        while ((inputLine = br.readLine()) != null) {
+//                            response.append(inputLine);
+//                        }
+//                        br.close();
+//                        post_msg = response.toString();
+//                    } catch (Exception e){
+//                        System.out.println(e);
+//                    }
+//                }
+//
+//                System.out.println("TranslateResult : "+ post_msg);
+//                try {
+//                    JSONObject ob = new JSONObject(post_msg);
+//                    JSONObject ob1 = new JSONObject(ob.getString("message"));
+//                    JSONObject ob2 = new JSONObject(ob1.getString("result"));
+//                    post_msg = ob2.getString("translatedText");
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                post_msg = pre_msg;
+//            }
+//
+//            msgDBHelper = new MsgDBHelper(mContext);
+//
+//            // 메시지가 왔는데 기존에 없는 방일 경우
+//            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
+//            SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+//            Cursor c = db.rawQuery(checkExistRoom, null);
+//            int existRoom = c.getCount();
+//            if(existRoom==0){
+//                JSONObject jsonObject = new JSONObject();
+//                try {
+//                    jsonObject.put("sender", sender);
+//                    jsonObject.put("receiver", receiver);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                // 채팅방 DB 생성하기
+//                GetChatRoom gcr = new GetChatRoom();
+//                gcr.execute(jsonObject.toString());
+//            } else {
+//                msgDBHelper.insertMsg(dis1, dis2, sender, msg, post_msg, time, 1, 1);
+//
+//                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+//                // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
+//                // MainChatFragment
+//                Intent intent = new Intent();
+//                intent.setAction("com.together.broadcast.room.integer");
+//                intent.putExtra("reload", 1);
+//                sendBroadcast(intent);
+//            }
+//
+//            // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+//            // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+//            // InChattingActivity
+//            Intent intent2 = new Intent();
+//            intent2.setAction("com.together.broadcast.chat.integer");
+//            intent2.putExtra("plus", 1);
+//            intent2.putExtra("msg", post_msg);
+//            intent2.putExtra("Receiver", sender);
+//            sendBroadcast(intent2);
+//
+//            // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
+//            // com.together.linkalk.InChattingActivity
+//            ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+//            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+//            Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+//            // 방 번호 찾는 쿼리
+//            String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+//            db = msgDBHelper.getReadableDatabase();
+//            c = db.rawQuery(query, null);
+//            int rn = 0;
+//            if(c.moveToFirst()){
+//                rn =  c.getInt(c.getColumnIndex("roomNo"));
+//            }
+//            if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
+//                NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
+//                Intent intent = new Intent(mContext, InChattingActivity.class);
+//                intent.putExtra("Receiver", sender);
+//                Notification.Builder builder = new Notification.Builder(mContext);
+//                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//                builder.setSmallIcon(R.mipmap.ic_launcher_round)
+//                        .setTicker("Linkalk")
+//                        .setWhen(System.currentTimeMillis())
+//                        .setContentTitle(sender).setContentText(post_msg)
+//                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+//                        .setContentIntent(pendingIntent)
+//                        .setAutoCancel(true)
+//                        .setOngoing(false);
+//                notificationManager.notify(rn, builder.build());
+//            }
+//            c.close();
+//            db.close();
+//
+//        }   // run 끝
+//
+//    }   // 메시지 번역 Thread 끝
 
-        SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
-        String mLan = sharedPreferences.getString("language", "");
+    // 메시지 번역한 결과를 받아오는 Asynctask
+    class returnTransMsg extends AsyncTask<String, Void, String> {
 
         Context mContext;
 
-        returnTransMsg(Context context, String message, String language) {
+        returnTransMsg(Context context){
             mContext = context;
-            pre_msg = message;
-            oLan = language;
         }
 
-        public void run(){
-            if(!my_nickname.equals(sender)){
-                if((mLan.equals("Korean")&&oLan.equals("Chinese")) || (mLan.equals("Chinese")&&oLan.equals("Korean")) || (mLan.equals("Korean")&&oLan.equals("English")) || (mLan.equals("English")&&oLan.equals("Korean"))){
-                    try{
-                        String apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
-                        URL url = new URL(apiUrl);
-                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        if(mLan.equals("Korean")&&oLan.equals("Chinese")){
-                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
-                        } else if (mLan.equals("Chinese")&&oLan.equals("Korean")){
-                            postParams = "source=ko&target=zh-CN&text=" + pre_msg;
-                        } else if (mLan.equals("Korean")&&oLan.equals("English")){
-                            postParams = "source=en&target=ko&text=" + pre_msg;
-                        } else if (mLan.equals("English")&&oLan.equals("Korean")){
-                            postParams = "source=ko&target=en&text=" + pre_msg;
-                        }
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
+        @Override
+        protected String doInBackground(String... params) {
+            try{
+                SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
+                String mNick = sharedPreferences.getString("nickname", "");
+                String mLan = sharedPreferences.getString("language", "");
 
-                        // 서버 응답 - 번역 메시지
-                        int responseCode = con.getResponseCode();
-                        BufferedReader br;
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        String inputLine;
-                        StringBuffer response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        post_msg = response.toString();
-                    } catch (Exception e){
-                        System.out.println("papagoErrorMsg : " + e);
+                String oNick = params[0];
+                String msg = params[1];
+                String oLan = params[2];
+
+                if(mNick.equals(oNick)){
+                    return msg;
+                } else {
+                    JSONObject obt = new JSONObject();
+                    obt.put("msg", msg);
+                    obt.put("my_language", mLan);
+                    obt.put("other_language", oLan);
+
+                    String send = obt.toString();
+
+                    // 서버와 연결하기 위해 세션 아이디 불러와서 커넥트
+                    String sessionID = sharedPreferences.getString("sessionID", "");
+
+                    Log.i("sessionID",sessionID);
+
+                    URL url = new URL("http://www.o-ddang.com/linkalk/returnTransMsg.php");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+
+                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setConnectTimeout(5000);
+                    httpURLConnection.setDefaultUseCaches(false);
+                    httpURLConnection.setDoInput(true);
+                    httpURLConnection.setDoOutput(true);
+                    httpURLConnection.setRequestMethod("POST");
+
+                    httpURLConnection.setInstanceFollowRedirects( false );
+                    if(!TextUtils.isEmpty(sessionID)) {
+                        httpURLConnection.setRequestProperty( "cookie", sessionID) ;
                     }
-                } else if((mLan.equals("English")&&oLan.equals("Chinese")) || (mLan.equals("Chinese")&&oLan.equals("English"))) {
-                    // 영어 또는 중국어를 먼저 한국어로 변경
-                    try{
-                        String apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
-                        URL url = new URL(apiUrl);
-                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        if(oLan.equals("Chinese")){
-                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
-                        } else if (oLan.equals("English")){
-                            postParams = "source=en&target=ko&text=" + pre_msg;
-                        }
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
 
-                        // 서버 응답 - 번역 메시지
-                        int responseCode = con.getResponseCode();
-                        BufferedReader br;
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        String inputLine;
-                        StringBuffer response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        String postMsg_tmp = response.toString();
+                    httpURLConnection.setRequestProperty("Accept", "application/json");
+                    httpURLConnection.setRequestProperty("Content-type", "application/json");
 
-                        try {
-                            JSONObject ob = new JSONObject(postMsg_tmp);
-                            JSONObject ob1 = new JSONObject(ob.getString("message"));
-                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
-                            postMsg_tmp = ob2.getString("translatedText");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    OutputStream os = httpURLConnection.getOutputStream();
+                    os.write(send.getBytes());
+                    os.flush();
 
-                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
-                        apiUrl = "https://openapi.naver.com/v1/papago/n2mt";
-                        url = new URL(apiUrl);
-                        con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        if(mLan.equals("English")){
-                            postParams = "source=ko&target=en&text=" + postMsg_tmp;
-                        } else if (mLan.equals("Chinese")){
-                            postParams = "source=ko&target=zh-CN&text=" + postMsg_tmp;
-                        }
-                        con.setDoOutput(true);
-                        wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
+                    // 서버에서 번역된 결과 메시지를 리턴
+                    int responseStatusCode = httpURLConnection.getResponseCode();
+                    Log.d("responseStatusCode", "response code - " + responseStatusCode);
 
-                        // 서버 응답 - 번역 메시지
-                        responseCode = con.getResponseCode();
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        post_msg = response.toString();
-                    } catch (Exception e){
-                        System.out.println(e);
+                    InputStream inputStream;
+                    if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                        inputStream = httpURLConnection.getInputStream();
+                    } else{
+                        inputStream = httpURLConnection.getErrorStream();
                     }
-                } else if((mLan.equals("Korean")&&oLan.equals("Japanese")) || (mLan.equals("Japanese")&&oLan.equals("Korean"))){
-                    try{
-                        String apiURL = "https://openapi.naver.com/v1/language/translate";
-                        URL url = new URL(apiURL);
-                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        // post request
-                        if(mLan.equals("Korean")&&oLan.equals("Japanese")){
-                            postParams = "source=ja&target=ko&text=" + pre_msg;
-                        } else if (mLan.equals("Japanese")&&oLan.equals("Korean")){
-                            postParams = "source=ko&target=ja&text=" + pre_msg;
-                        }
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-                        // 서버 응답 - 번역 메시지
-                        int responseCode = con.getResponseCode();
-                        BufferedReader br;
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        String inputLine;
-                        StringBuffer response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        post_msg = response.toString();
-                    } catch (Exception e){
-                        System.out.println(e);
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while((line = bufferedReader.readLine()) != null){
+                        sb.append(line);
                     }
-                } else if ((mLan.equals("Chinese")&&oLan.equals("Japanese")) || (mLan.equals("Japanese")&&oLan.equals("Chinese"))) {
-                    try{
-                        String apiURL = "";
-                        URL url = null;
-                        HttpURLConnection con = null;
-                        // post request
-                        if(oLan.equals("Japanese")){
-                            apiURL = "https://openapi.naver.com/v1/language/translate";
-                            postParams = "source=ja&target=ko&text=" + pre_msg;
-                        } else if (oLan.equals("Chinese")){
-                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
-                            postParams = "source=zh-CN&target=ko&text=" + pre_msg;
-                        }
-                        url = new URL(apiURL);
-                        con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
-
-                        // 서버 응답 - 번역 메시지
-                        int responseCode = con.getResponseCode();
-                        BufferedReader br;
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        String inputLine;
-                        StringBuffer response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        String postMsg_tmp = response.toString();
-
-                        try {
-                            JSONObject ob = new JSONObject(postMsg_tmp);
-                            JSONObject ob1 = new JSONObject(ob.getString("message"));
-                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
-                            postMsg_tmp = ob2.getString("translatedText");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
-                        // post request
-                        if(mLan.equals("Chinese")){
-                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
-                            postParams = "source=ko&target=zh-CN&text=" + postMsg_tmp;
-                        } else if (mLan.equals("Japanese")){
-                            apiURL = "https://openapi.naver.com/v1/language/translate";
-                            postParams = "source=ko&target=ja&text=" + postMsg_tmp;
-                        }
-                        url = new URL(apiURL);
-                        con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        con.setDoOutput(true);
-                        wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
-
-                        // 서버 응답 - 번역 메시지
-                        responseCode = con.getResponseCode();
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        post_msg = response.toString();
-                    } catch (Exception e){
-                        System.out.println(e);
-                    }
-                } else if ((mLan.equals("Japanese")&&oLan.equals("English")) || (mLan.equals("English")&&oLan.equals("Japanese"))) {
-                    try{
-                        String apiURL = "";
-                        URL url = null;
-                        HttpURLConnection con = null;
-                        // post request
-                        if(oLan.equals("English")){
-                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
-                            postParams = "source=en&target=ko&text=" + pre_msg;
-                        } else if (oLan.equals("Japanese")){
-                            apiURL = "https://openapi.naver.com/v1/language/translate";
-                            postParams = "source=jaN&target=ko&text=" + pre_msg;
-                        }
-                        url = new URL(apiURL);
-                        con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
-
-                        // 서버 응답 - 번역 메시지
-                        int responseCode = con.getResponseCode();
-                        BufferedReader br;
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        String inputLine;
-                        StringBuffer response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        String postMsg_tmp = response.toString();
-
-                        try {
-                            JSONObject ob = new JSONObject(postMsg_tmp);
-                            JSONObject ob1 = new JSONObject(ob.getString("message"));
-                            JSONObject ob2 = new JSONObject(ob1.getString("result"));
-                            postMsg_tmp = ob2.getString("translatedText");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        // 한국어로 받은 메시지를 다시 타겟에 맞게 중국어 또는 영어로 변경
-                        // post request
-                        if(mLan.equals("Japanese")){
-                            apiURL = "https://openapi.naver.com/v1/language/translate";
-                            postParams = "source=ko&target=ja&text=" + postMsg_tmp;
-                        } else if (mLan.equals("English")){
-                            apiURL = "https://openapi.naver.com/v1/papago/n2mt";
-                            postParams = "source=ko&target=en&text=" + postMsg_tmp;
-                        }
-                        url = new URL(apiURL);
-                        con = (HttpURLConnection)url.openConnection();
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("X-Naver-Client-Id", clientId);
-                        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                        con.setDoOutput(true);
-                        wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(postParams);
-                        wr.flush();
-                        wr.close();
-
-                        // 서버 응답 - 번역 메시지
-                        responseCode = con.getResponseCode();
-                        if(responseCode==200) { // 정상 호출
-                            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                        } else {  // 에러 발생
-                            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                        }
-                        response = new StringBuffer();
-                        while ((inputLine = br.readLine()) != null) {
-                            response.append(inputLine);
-                        }
-                        br.close();
-                        post_msg = response.toString();
-                    } catch (Exception e){
-                        System.out.println(e);
-                    }
+                    bufferedReader.close();
+                    return sb.toString().trim();
                 }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
 
-                System.out.println("TranslateResult : "+ post_msg);
-                try {
-                    JSONObject ob = new JSONObject(post_msg);
-                    JSONObject ob1 = new JSONObject(ob.getString("message"));
-                    JSONObject ob2 = new JSONObject(ob1.getString("result"));
-                    post_msg = ob2.getString("translatedText");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                post_msg = pre_msg;
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            System.out.println("TranslateResult : "+ s);
+            try {
+                JSONObject ob = new JSONObject(s);
+                JSONObject ob1 = new JSONObject(ob.getString("message"));
+                JSONObject ob2 = new JSONObject(ob1.getString("result"));
+                post_msg = ob2.getString("translatedText");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                post_msg = s;
             }
 
             msgDBHelper = new MsgDBHelper(mContext);
@@ -924,9 +1119,7 @@ public class SocketService extends Service{
             }
             c.close();
             db.close();
-
-        }   // run 끝
-
-    }   // 메시지 번역 Thread 끝
+        }
+    }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
 
 }
