@@ -12,6 +12,9 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -46,6 +49,7 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         intentFilter = new IntentFilter();
         intentFilter.addAction("com.together.broadcast.room.integer");
         broadcastReceiver = new BroadcastReceiver() {
@@ -83,6 +87,26 @@ public class MainChatFragment extends Fragment {
         });
 
         return layout;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.pluschat, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch (item.getItemId()){
+            case R.id.plus_chat:
+                Intent intent = new Intent(getActivity().getApplicationContext(), ChoiceChatMember.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return false;
     }
 
     @Override

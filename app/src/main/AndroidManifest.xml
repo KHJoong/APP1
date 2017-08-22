@@ -62,6 +62,12 @@
         </activity>
         <!--main activity end-->
 
+        <!--choice member activity start-->
+        <activity
+            android:name=".ChoiceChatMember">
+        </activity>
+        <!--choice member activity end-->
+
         <!--memberjoin activity start-->
         <activity
             android:name=".MemberJoinActivity">
