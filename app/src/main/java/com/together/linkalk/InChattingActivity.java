@@ -178,27 +178,33 @@ public class InChattingActivity extends AppCompatActivity {
 
                 // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
                 String msg_sender = intent.getStringExtra("Receiver");
+                String dis1 = intent.getStringExtra("dis1");
+                String dis2 = intent.getStringExtra("dis2");
                 String msg = intent.getStringExtra("msg");
+                ArrayList<String> receiver_array = intent.getStringArrayListExtra("ReceiverArray");
                 Log.i("notification msg_sender", msg_sender);
                 Log.i("notification msg", msg);
 
                 // 방 번호 찾는 쿼리
                 // --------------- test ---------------
-                String query = "SELECT roomNo FROM chat_room WHERE relation='"+other_nickname+"'";
+                String query = "SELECT * FROM chat_room WHERE relation='"+other_nickname+"'";
                 // --------------- test ---------------
 //                String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
                 SQLiteDatabase db = msgDBHelper.getReadableDatabase();
                 Cursor c = db.rawQuery(query, null);
                 int rn = 0;
+                String rela = "";
                 if(c.moveToFirst()){
                     rn =  c.getInt(c.getColumnIndex("roomNo"));
+                    rela = c.getString(c.getColumnIndex("relation"));
                 }
                 c.close();
                 db.close();
-                if(!msg_sender.equals(my_nickname) && !other_nickname_array.contains(msg_sender)){
+//                if(!msg_sender.equals(my_nickname) && !other_nickname_array.contains(msg_sender)){
+                if(!msg_sender.equals(my_nickname) && (!rela.equals(dis1) && !rela.equals(dis2))){
                     NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                     Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
-                    noti_intent.putExtra("Receiver", msg_sender);
+                    noti_intent.putStringArrayListExtra("Receiver", receiver_array);
                     noti_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     Notification.Builder builder = new Notification.Builder(getApplicationContext());
                     PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis()/1000, noti_intent, PendingIntent.FLAG_UPDATE_CURRENT);

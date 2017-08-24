@@ -1103,7 +1103,10 @@ public class SocketService extends Service{
             intent2.setAction("com.together.broadcast.chat.integer");
             intent2.putExtra("plus", 1);
             intent2.putExtra("msg", post_msg);
+            intent2.putExtra("dis1", receiver);
+            intent2.putExtra("dis2", receiver2);
             intent2.putExtra("Receiver", sender);
+            intent2.putStringArrayListExtra("ReceiverArray", receiver_array);
             sendBroadcast(intent2);
 
             // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
@@ -1125,7 +1128,7 @@ public class SocketService extends Service{
             if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
                 NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
                 Intent intent = new Intent(mContext, InChattingActivity.class);
-                intent.putExtra("Receiver", sender);
+                intent.putStringArrayListExtra("Receiver", receiver_array);
                 Notification.Builder builder = new Notification.Builder(mContext);
                 PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setSmallIcon(R.mipmap.ic_launcher_round)

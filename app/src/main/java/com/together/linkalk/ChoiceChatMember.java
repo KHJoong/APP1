@@ -44,6 +44,7 @@ public class ChoiceChatMember extends AppCompatActivity {
 
     Button start_chat_btn;
 
+    ArrayList<String> list;
 
     String mf_tmp;
     String nickname;
@@ -114,7 +115,7 @@ public class ChoiceChatMember extends AppCompatActivity {
             public void onClick(View v) {
                 SharedPreferences sp = getSharedPreferences("maintain", MODE_PRIVATE);
                 String my_nickname = sp.getString("nickname", "");
-                ArrayList<String> list = new ArrayList<String>();
+                list = new ArrayList<String>();
                 for(int i=0; i<csAdapter.csItem.size(); i++){
                     if(csAdapter.csItem.get(i).getChecked()){
                         list.add(csAdapter.csItem.get(i).getNickname());
@@ -133,12 +134,6 @@ public class ChoiceChatMember extends AppCompatActivity {
                 // 채팅방 DB 생성하기
                 PlusChatRoom pcr = new PlusChatRoom();
                 pcr.execute(jsonObject.toString());
-
-                // 채팅방 띄우기
-                Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
-                intent.putStringArrayListExtra("Receiver", list);
-                startActivity(intent);
-                finish();
             }
         });
 
@@ -244,6 +239,11 @@ public class ChoiceChatMember extends AppCompatActivity {
             MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
             mdbHelper.insertRoom(roomNo, relation);
 
+            // 채팅방 띄우기
+            Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
+            intent.putStringArrayListExtra("Receiver", list);
+            startActivity(intent);
+            finish();
         }
     }   // 채팅방 생성 Asynctask
 
