@@ -38,6 +38,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -62,6 +63,8 @@ public class SocketService extends Service{
     String dis2;
     String sender;
     String receiver;
+    String receiver2;
+    ArrayList<String> receiver_array;
     String lan;
     String msg;
     String time;
@@ -161,12 +164,29 @@ public class SocketService extends Service{
                                 time = sdfNow.format(new Date(System.currentTimeMillis()));
                                 sender = "";
                                 receiver = "";
+                                receiver_array = new ArrayList<String>();   // --------------- test
                                 msg = "비어있음";
                                 int sync = 1;
                                 try {
                                     JSONObject obj = new JSONObject(getString);
                                     sender = obj.getString("sender");
-                                    receiver = obj.getString("receiver");
+                                    // --------------- test ---------------
+                                    JSONArray array = obj.getJSONArray("receiver");
+                                    for(int i=0; i<array.length(); i++){
+                                        receiver_array.add(array.getString(i));
+                                        if(i==(array.length()-1)){
+                                            receiver = receiver+ array.getString(i);
+                                        } else {
+                                            receiver = receiver+ array.getString(i)+"/";
+                                        }
+                                        if((array.length()-1-i)==0){
+                                            receiver2 = receiver2 + array.getString(array.length()-1-i);
+                                        } else {
+                                            receiver2 = receiver2 + array.getString(array.length()-1-i) + "/";
+                                        }
+                                    }
+                                    // --------------- test ---------------
+//                                    receiver = obj.getString("receiver");
                                     msg = obj.getString("msg");
                                     lan = obj.getString("language");
                                     sync = 1;
@@ -174,11 +194,8 @@ public class SocketService extends Service{
                                     e.printStackTrace();
                                 }
 
-                                dis1 = sender+ "/" +receiver;
-                                dis2 = receiver + "/" + sender;
-
-//                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
-//                                rtm.start();
+//                                dis1 = sender+ "/" +receiver;
+//                                dis2 = receiver + "/" + sender;
 
                                 returnTransMsg rtm = new returnTransMsg(mContext);
                                 rtm.execute(sender, msg, lan);
@@ -284,7 +301,7 @@ public class SocketService extends Service{
             MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
             mdbHelper.insertRoom(roomNo, relation);
 
-            msgDBHelper.insertMsg(dis1, dis2, sender, msg, post_msg, time, 1, 1);
+            msgDBHelper.insertMsg(sender, relation, msg, post_msg, time, 1, 1);
 
             // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
             // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
@@ -475,13 +492,10 @@ public class SocketService extends Service{
                                 msg = obj3.getString("msg");
                                 lan = obj3.getString("language");
 
-                                dis1 = sender+ "/" +receiver;
-                                dis2 = receiver + "/" + sender;
+//                                dis1 = sender+ "/" +receiver;
+//                                dis2 = receiver + "/" + sender;
 
                                 msgDBHelper = new MsgDBHelper(mContext);
-
-//                                returnTransMsg rtm = new returnTransMsg(mContext, msg, lan);
-//                                rtm.start();
 
                                 returnTransMsg rtm = new returnTransMsg(mContext);
                                 rtm.execute(sender, msg, lan);
@@ -1050,7 +1064,10 @@ public class SocketService extends Service{
             msgDBHelper = new MsgDBHelper(mContext);
 
             // 메시지가 왔는데 기존에 없는 방일 경우
-            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
+            // --------------- test ---------------
+            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+receiver+"' OR relation='"+receiver2+"';";
+            // --------------- test ---------------
+//            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
             SQLiteDatabase db = msgDBHelper.getReadableDatabase();
             Cursor c = db.rawQuery(checkExistRoom, null);
             int existRoom = c.getCount();
@@ -1058,7 +1075,7 @@ public class SocketService extends Service{
                 JSONObject jsonObject = new JSONObject();
                 try {
                     jsonObject.put("sender", sender);
-                    jsonObject.put("receiver", receiver);
+                    jsonObject.put("receiver", new JSONArray(receiver_array));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1067,7 +1084,7 @@ public class SocketService extends Service{
                 GetChatRoom gcr = new GetChatRoom();
                 gcr.execute(jsonObject.toString());
             } else {
-                msgDBHelper.insertMsg(dis1, dis2, sender, msg, post_msg, time, 1, 1);
+                msgDBHelper.insertMsg(sender, receiver, msg, post_msg, time, 1, 1);
 
                 // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
                 // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
@@ -1094,7 +1111,10 @@ public class SocketService extends Service{
             List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
             Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
             // 방 번호 찾는 쿼리
-            String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
+            // --------------- test ---------------
+            String query = "SELECT roomNo FROM chat_room WHERE relation='"+receiver+"'";
+            // --------------- test ---------------
+//            String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
             db = msgDBHelper.getReadableDatabase();
             c = db.rawQuery(query, null);
             int rn = 0;

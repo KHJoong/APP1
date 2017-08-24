@@ -25,6 +25,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.zip.CRC32;
 
 /**
@@ -78,10 +79,20 @@ public class MainChatFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Room room = (Room)parent.getItemAtPosition(position);
-                String roomName = room.getRoomName();
+//                String roomName = room.getRoomName();
+
+                // --------------- test ---------------
+                String relation = room.getRoomRelation();
+                String[] rel = relation.split("/");
+                ArrayList<String> list = new ArrayList<String>();
+                for(int i=0; i<rel.length; i++){
+                    list.add(rel[i]);
+                }
+                // --------------- test ---------------
 
                 Intent intent = new Intent(getActivity().getApplicationContext(), InChattingActivity.class);
-                intent.putExtra("Receiver", roomName);
+                intent.putStringArrayListExtra("Receiver", list);   // --------------- test
+//                intent.putExtra("Receiver", roomName);
                 startActivity(intent);
             }
         });
@@ -199,7 +210,7 @@ public class MainChatFragment extends Fragment {
                             Cursor c3 = db.rawQuery(selectQuery3, null);
                             numUnread = c3.getCount();
 
-                            Room room = new Room(roomNo, roomName, numMember, lastCom, lastComTime, numUnread);
+                            Room room = new Room(roomNo, roomName, relation, numMember, lastCom, lastComTime, numUnread);
                             cla.addItem(room);
 
                             c2.close();

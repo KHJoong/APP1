@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by kimhj on 2017-07-27.
@@ -175,11 +177,17 @@ public class MyFriendDetailProfile extends AppCompatActivity {
         btn_myfriend_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // ---------- test ----------
                 SharedPreferences sp = getSharedPreferences("maintain", MODE_PRIVATE);
+                String my_nickname = sp.getString("nickname", "");
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(mem_nickname);
+                list.add(my_nickname);
+
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("sender", sp.getString("nickname", ""));
-                    jsonObject.put("receiver", mem_nickname);
+                    jsonObject.put("sender", my_nickname);
+                    jsonObject.put("receiver", new JSONArray(list));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -190,9 +198,29 @@ public class MyFriendDetailProfile extends AppCompatActivity {
 
                 // 채팅방 띄우기
                 Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
-                intent.putExtra("Receiver", mem_nickname);
+                intent.putStringArrayListExtra("Receiver", list);
                 startActivity(intent);
                 finish();
+                // ---------- test ----------
+
+//                SharedPreferences sp = getSharedPreferences("maintain", MODE_PRIVATE);
+//                JSONObject jsonObject = new JSONObject();
+//                try {
+//                    jsonObject.put("sender", sp.getString("nickname", ""));
+//                    jsonObject.put("receiver", mem_nickname);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+
+                // 채팅방 DB 생성하기
+//                PlusChatRoom pcr = new PlusChatRoom();
+//                pcr.execute(jsonObject.toString());
+
+                // 채팅방 띄우기
+//                Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
+//                intent.putExtra("Receiver", mem_nickname);
+//                startActivity(intent);
+//                finish();
             }
         });
 

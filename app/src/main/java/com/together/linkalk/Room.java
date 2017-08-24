@@ -7,14 +7,16 @@ package com.together.linkalk;
 public class Room {
     int roomNum;
     String roomName;
+    String roomRelation;
     int numMember;
     String lastCommunication;
     String lastCommunicationTime;
     int numUnread;
 
-    Room(int rnum, String rn, int nm, String lc, String lct, int nu){
+    Room(int rnum, String rn, String rr, int nm, String lc, String lct, int nu){
         roomNum = rnum;
         roomName = rn;
+        roomRelation = rr;
         numMember = nm;
         lastCommunication = lc;
         lastCommunicationTime = lct;
@@ -27,6 +29,10 @@ public class Room {
 
     public String getRoomName() {
         return roomName;
+    }
+
+    public String getRoomRelation() {
+        return roomRelation;
     }
 
     public int getNumMember() {
