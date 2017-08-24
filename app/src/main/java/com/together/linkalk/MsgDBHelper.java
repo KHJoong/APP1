@@ -36,10 +36,14 @@ public class MsgDBHelper extends SQLiteOpenHelper{
 
     public void insertRoom(int no, String rel){
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM chat_room where roomNo='"+no+"'";
+        String query = "SELECT * FROM chat_room";
         Cursor cursor = db.rawQuery(query, null);
-        if(cursor.getCount() == 0){
-            db.execSQL("INSERT INTO chat_room VALUES('"+no+"', '"+rel+"','0');");
+        int ct = cursor.getCount();
+
+        String query2 = "SELECT * FROM chat_room where roomNo='"+no+"'";
+        Cursor cursor2 = db.rawQuery(query2, null);
+        if(cursor2.getCount() == 0){
+            db.execSQL("INSERT INTO chat_room VALUES('"+no+"', '"+rel+"','"+ct+"');");
             db.close();
         }
     }

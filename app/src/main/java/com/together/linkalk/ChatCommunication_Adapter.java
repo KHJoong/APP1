@@ -2,6 +2,8 @@ package com.together.linkalk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,8 @@ public class ChatCommunication_Adapter extends BaseAdapter {
     ArrayList<Chat> ccaItem;
 
     ViewHolderChat viewHolder;
+    TextView inviter;
+    TextView invited;
 
     String savedDate;
     String[] savedDateDis;
@@ -73,26 +77,47 @@ public class ChatCommunication_Adapter extends BaseAdapter {
         String nickname = sharedPreferences.getString("nickname", "");
 
         if(view == null){
-
-            //--------------------------------------------------------------------------------------------
             view = ((LayoutInflater)ccaContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.chatcommuni_me_frame, null);
             viewHolder = new ViewHolderChat();
+
+            inviter = (TextView)view.findViewById(R.id.tv_inviter);
+            invited = (TextView)view.findViewById(R.id.tv_invited);
 
             viewHolder.sender = (TextView)view.findViewById(R.id.tv_my_nick);
             viewHolder.msg = (TextView)view.findViewById(R.id.tv_my_communi);
             viewHolder.time = (TextView)view.findViewById(R.id.tv_my_time);
             viewHolder.date = (TextView)view.findViewById(R.id.tv_date);
-            //--------------------------------------------------------------------------------------------
 
             view.setTag(viewHolder);
-
         } else {
             viewHolder = (ViewHolderChat) view.getTag();
         }
 
+        if(position==0){
+            SharedPreferences sh = ccaContext.getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            String my_nick = sh.getString("nickname", "");
+            String[] receiver_array = ccaItem.get(position).getReceiver().split("/");
+            String receiver = "";
+            for(int i=0; i<receiver_array.length; i++) {
+                if(!my_nick.equals(receiver_array[i])){
+                    if(i==0){
+                        receiver = receiver_array[i];
+                    } else if((i <= (receiver_array.length-1)) && (i != 0 )){
+                        receiver = receiver + ", " + receiver_array[i];
+                    }
+                }
+                if(i==(receiver_array.length-1)){
+                    receiver = receiver + "님을 초대하였습니다.";
+                }
+            }
 
+            inviter.setText(ccaItem.get(position).getSender()+"님이");
+            invited.setText(receiver);
+        } else {
+            inviter.setVisibility(View.GONE);
+            invited.setVisibility(View.GONE);
+        }
 
-        //--------------------------------------------------------------------------------------------
         // 채팅방 날짜 변하는날 날짜 알려주는 부분
         if(position==0){
             savedDate = ccaItem.get(position).getTime();
@@ -169,7 +194,6 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             viewHolder.msg.setLayoutParams(params);
 
         }
-        //--------------------------------------------------------------------------------------------
 
         return view;
     }

@@ -21,6 +21,7 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +52,7 @@ public class InChattingActivity extends AppCompatActivity {
     ListView lvChat;
     ChatCommunication_Adapter ccAdapter;
 
+    TextView tvComment;
     EditText etMsg;
     ImageView btnSend;
 
@@ -59,6 +61,8 @@ public class InChattingActivity extends AppCompatActivity {
     ArrayList<String> other_nickname_array;   // test
     String my_nickname;
     String my_language;
+    String comment;
+
     Thread sender;
     Thread showMsg;
     IntentFilter intentFilter2;
@@ -69,6 +73,9 @@ public class InChattingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_chat_room);
 
+        tvComment = (TextView)findViewById(R.id.tvComment);
+        tvComment.setVisibility(View.GONE);
+
         SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
         my_nickname = sharedPreferences.getString("nickname", "");
         my_language = sharedPreferences.getString("language", "");
@@ -77,12 +84,28 @@ public class InChattingActivity extends AppCompatActivity {
         Intent intent = getIntent();
         // --------------- test ---------------
         other_nickname_array = intent.getStringArrayListExtra("Receiver");
-        Collections.sort(other_nickname_array, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
+        if((intent.getIntExtra("comment", 0) ==1) && (other_nickname_array.size()>2)){
+            for(int i=0; i<other_nickname_array.size(); i++) {
+                if(!my_nickname.equals(other_nickname_array.get(i))){
+                    if(i==0){
+                        comment = other_nickname_array.get(i);
+                    } else if((i <= (other_nickname_array.size()-1)) && (i != 0 )){
+                        comment = comment + ", " + other_nickname_array.get(i);
+                    }
+                }
+                if(i==(other_nickname_array.size()-1)){
+                    comment = comment + " 님을 초대할 예정입니다.";
+                }
             }
-        });
+            tvComment.setVisibility(View.VISIBLE);
+            tvComment.setText(comment);
+        }
+//        Collections.sort(other_nickname_array, new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                return o1.compareToIgnoreCase(o2);
+//            }
+//        });
         for(int i=0; i<other_nickname_array.size(); i++){
             if(!other_nickname_array.get(i).equals(my_nickname)){
                 if(other_nickname.equals("")){
@@ -115,12 +138,12 @@ public class InChattingActivity extends AppCompatActivity {
         ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
 
         // --------------- test ---------------
-        Collections.sort(other_nickname_array, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
+//        Collections.sort(other_nickname_array, new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                return o1.compareToIgnoreCase(o2);
+//            }
+//        });
         other_nickname = "";
         for(int i=0; i<other_nickname_array.size(); i++){
             if(other_nickname.equals("")){
@@ -129,6 +152,7 @@ public class InChattingActivity extends AppCompatActivity {
                 other_nickname = other_nickname + "/" + other_nickname_array.get(i);
             }
         }
+        System.out.println("chatroomclicked : " + other_nickname);
         // 저장된 메시지 불러오는 Thread 실행
         showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
         showMsg.start();
@@ -240,6 +264,7 @@ public class InChattingActivity extends AppCompatActivity {
                     sender.start();
 
                     etMsg.setText(null);
+                    tvComment.setVisibility(View.GONE);
                 }
             }
         });

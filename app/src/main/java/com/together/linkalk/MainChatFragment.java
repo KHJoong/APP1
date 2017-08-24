@@ -83,6 +83,7 @@ public class MainChatFragment extends Fragment {
 
                 // --------------- test ---------------
                 String relation = room.getRoomRelation();
+                System.out.println("chatroomclick : "+relation);
                 String[] rel = relation.split("/");
                 ArrayList<String> list = new ArrayList<String>();
                 for(int i=0; i<rel.length; i++){
@@ -197,6 +198,9 @@ public class MainChatFragment extends Fragment {
                                     roomName = roomName + ", " + rel[i];
                                 }
                             }
+                        }
+                        if(roomName.length()>20){
+                            roomName = roomName.substring(0, 20) + "...";
                         }
 
                         String selectQuery2 = "SELECT * FROM chat_msg WHERE roomNo='"+ roomNo +"';";

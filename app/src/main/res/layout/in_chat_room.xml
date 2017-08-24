@@ -6,6 +6,19 @@
     android:layout_height="match_parent" android:layout_width="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/tvComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:padding="8dp"
+        android:background="#dcdcdc"
+        android:text="누구누구누구누구누구를 초대할 예정입니다."/>
+
     <include
         android:id="@+id/include"
         layout="@layout/type_msg_area"

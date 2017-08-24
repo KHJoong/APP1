@@ -239,9 +239,16 @@ public class ChoiceChatMember extends AppCompatActivity {
             MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
             mdbHelper.insertRoom(roomNo, relation);
 
+            String[] rel = relation.split("/");
+            ArrayList<String> listed = new ArrayList<String>();
+            for(int i=0; i<rel.length; i++){
+                listed.add(rel[i]);
+            }
+
             // 채팅방 띄우기
             Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
-            intent.putStringArrayListExtra("Receiver", list);
+            intent.putStringArrayListExtra("Receiver", listed);
+            intent.putExtra("comment", 1);
             startActivity(intent);
             finish();
         }
