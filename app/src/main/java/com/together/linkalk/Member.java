@@ -16,6 +16,8 @@ public class Member {
     String hobby4;
     String hobby5;
 
+    boolean checked;
+
     Member(String nick, String loc, String lan, String time, String intro, String ho1, String ho2, String ho3, String ho4, String ho5){
         nickname = nick;
         location = loc;
@@ -69,5 +71,12 @@ public class Member {
         return hobby5;
     }
 
+    public boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean c){
+        checked = c;
+    }
 
 }

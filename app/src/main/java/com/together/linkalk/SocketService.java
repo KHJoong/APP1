@@ -164,6 +164,7 @@ public class SocketService extends Service{
                                 time = sdfNow.format(new Date(System.currentTimeMillis()));
                                 sender = "";
                                 receiver = "";
+                                receiver2 = "";
                                 receiver_array = new ArrayList<String>();   // --------------- test
                                 msg = "비어있음";
                                 int sync = 1;

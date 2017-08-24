@@ -184,13 +184,17 @@ public class MainChatFragment extends Fragment {
                         String my_nickname = sp.getString("nickname", "");
 
                         String[] rel = relation.split("/");
-                        numMember = rel.length - 1;
+                        if((rel.length-1) == 1){
+                            numMember = rel.length - 1;
+                        } else {
+                            numMember = rel.length;
+                        }
                         for(int i=0; i<rel.length; i++){
                             if(!rel[i].equals(my_nickname)){
                                 if(roomName.equals("")){
                                     roomName = roomName + rel[i];
                                 } else {
-                                    roomName = ", " + roomName + rel[i];
+                                    roomName = roomName + ", " + rel[i];
                                 }
                             }
                         }
