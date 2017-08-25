@@ -59,8 +59,6 @@ public class SocketService extends Service{
     String my_nickname;
 
     MsgDBHelper msgDBHelper;
-    String dis1;
-    String dis2;
     String sender;
     String receiver;
     String receiver2;
@@ -98,6 +96,8 @@ public class SocketService extends Service{
         // 소켓 연결 안되었을 때 저장된 메시지 받아오는 asynctask 실행
         GetTmpMsg getTmpMsg = new GetTmpMsg(getApplicationContext());
         getTmpMsg.execute();
+//        GetTmpMessage gtm = new GetTmpMessage(getApplicationContext());
+//        gtm.start();
 
         // 새로운 소켓 선언
         socket = new Socket();
@@ -165,13 +165,12 @@ public class SocketService extends Service{
                                 sender = "";
                                 receiver = "";
                                 receiver2 = "";
-                                receiver_array = new ArrayList<String>();   // --------------- test
+                                receiver_array = new ArrayList<String>();
                                 msg = "비어있음";
                                 int sync = 1;
                                 try {
                                     JSONObject obj = new JSONObject(getString);
                                     sender = obj.getString("sender");
-                                    // --------------- test ---------------
                                     JSONArray array = obj.getJSONArray("receiver");
                                     for(int i=0; i<array.length(); i++){
                                         receiver_array.add(array.getString(i));
@@ -186,8 +185,6 @@ public class SocketService extends Service{
                                             receiver2 = receiver2 + array.getString(array.length()-1-i) + "/";
                                         }
                                     }
-                                    // --------------- test ---------------
-//                                    receiver = obj.getString("receiver");
                                     msg = obj.getString("msg");
                                     lan = obj.getString("language");
                                     sync = 1;
@@ -195,8 +192,6 @@ public class SocketService extends Service{
                                     e.printStackTrace();
                                 }
 
-//                                dis1 = sender+ "/" +receiver;
-//                                dis2 = receiver + "/" + sender;
 
                                 returnTransMsg rtm = new returnTransMsg(mContext);
                                 rtm.execute(sender, msg, lan);
@@ -375,6 +370,142 @@ public class SocketService extends Service{
         }   // onDoing 끝
     }   // My Token Update 끝
 
+    // 서버 연결 끊겨서 못 받았던 메시지 받아오는 쓰레드
+//    class GetTmpMessage extends Thread{
+//        Context mContext;
+//
+//        JSONObject object = new JSONObject();
+//        String sessionID;
+//        String mynickname;
+//
+//        String getTmpMsg;
+//
+//        Handler handler;
+//
+//        public GetTmpMessage(Context context){
+//            mContext = context;
+//            handler = new Handler();
+//        }
+//
+//        public void run(){
+//            SharedPreferences sharedPreferences = getSharedPreferences("maintain", Context.MODE_PRIVATE);
+//            sessionID = sharedPreferences.getString("sessionID", "");
+//            mynickname = sharedPreferences.getString("nickname", "");
+//
+//            try{
+//                String getData = "1";
+//                try {
+//                    object.put("request", getData);
+//                    object.put("nickname", mynickname);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                URL url = new URL("http://www.o-ddang.com/linkalk/getTmpMsg.php");
+//                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+//
+//                httpURLConnection.setReadTimeout(5000);
+//                httpURLConnection.setConnectTimeout(5000);
+//                httpURLConnection.setDefaultUseCaches(false);
+//                httpURLConnection.setDoInput(true);
+//                httpURLConnection.setDoOutput(true);
+//                httpURLConnection.setRequestMethod("POST");
+//
+//                httpURLConnection.setInstanceFollowRedirects( false );
+//                if(!TextUtils.isEmpty(sessionID)) {
+//                    httpURLConnection.setRequestProperty( "cookie", sessionID) ;
+//                }
+//
+//                httpURLConnection.setRequestProperty("Accept", "application/json");
+//                httpURLConnection.setRequestProperty("Content-type", "application/json");
+//
+//                OutputStream os = httpURLConnection.getOutputStream();
+//                os.write(object.toString().getBytes());
+//                os.flush();
+//
+//                // 서버 리턴
+//                int responseStatusCode = httpURLConnection.getResponseCode();
+//                Log.d("responseStatusCode", "response code - " + responseStatusCode);
+//
+//                InputStream inputStream;
+//                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+//                    inputStream = httpURLConnection.getInputStream();
+//                } else{
+//                    inputStream = httpURLConnection.getErrorStream();
+//                }
+//                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+//                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//
+//                StringBuilder sb = new StringBuilder();
+//                String line;
+//
+//                while((line = bufferedReader.readLine()) != null){
+//                    sb.append(line);
+//                }
+//                bufferedReader.close();
+//                getTmpMsg =  sb.toString().trim();
+//
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        int n;
+//
+//                        if(!TextUtils.isEmpty(getTmpMsg)){
+//                            JSONObject object1 = null;
+//                            try {
+//                                object1 = new JSONObject(getTmpMsg);
+//                                JSONArray array = object1.getJSONArray("tmpmsg");
+//                                for(n=0; n<array.length(); n++) {
+//                                    String s_obj = array.getString(n);
+//                                    JSONObject obj2 = new JSONObject(s_obj);
+//
+//                                    String msgJson = obj2.getString("message");
+//                                    JSONObject obj3 = new JSONObject(msgJson);
+//                                    JSONArray ar = obj3.getJSONArray("receiver");
+//                                    time = obj2.getString("time");
+//                                    sender = obj3.getString("sender");
+//                                    msg = obj3.getString("msg");
+//                                    lan = obj3.getString("language");
+//                                    receiver = "";
+//                                    receiver2 = "";
+//                                    receiver_array = new ArrayList<String>();
+//
+//                                    for(int i=0; i<ar.length(); i++){
+//                                        receiver_array.add(ar.getString(i));
+//                                        if(i==(ar.length()-1)){
+//                                            receiver = receiver+ ar.getString(i);
+//                                        } else {
+//                                            receiver = receiver+ ar.getString(i)+"/";
+//                                        }
+//                                        if((ar.length()-1-i)==0){
+//                                            receiver2 = receiver2 + ar.getString(ar.length()-1-i);
+//                                        } else {
+//                                            receiver2 = receiver2 + ar.getString(ar.length()-1-i) + "/";
+//                                        }
+//                                    }
+//                                    msgDBHelper = new MsgDBHelper(mContext);
+//
+//                                    returnTransMsg rtm = new returnTransMsg(mContext);
+//                                    rtm.execute(sender, msg, lan);
+//                                }
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                });
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            } catch (ProtocolException e) {
+//                e.printStackTrace();
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
     // 소켓 연결이 끊겨서 받지 못했던 메시지를 받아오는 Asynctask
     class GetTmpMsg extends AsyncTask<Void, Void, String> {
 
@@ -402,8 +533,12 @@ public class SocketService extends Service{
         protected String doInBackground(Void... params) {
             try{
                 String getData = "1";
-                object.put("request", getData);
-                object.put("nickname", mynickname);
+                try {
+                    object.put("request", getData);
+                    object.put("nickname", mynickname);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 URL url = new URL("http://www.o-ddang.com/linkalk/getTmpMsg.php");
                 HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
@@ -460,74 +595,57 @@ public class SocketService extends Service{
             } catch (IOException e) {
                 e.printStackTrace();
                 return e.getMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                System.out.println("asdfjafderrer : "+ e.getMessage());
-                return e.getMessage();
             }
         }   // onDoing 끝
 
         @Override
         protected void onPostExecute(final String s) {
             super.onPostExecute(s);
-            Handler handler = new Handler();
+            try {
+                int n;
 
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int n;
+                if(!TextUtils.isEmpty(s)){
+                    JSONObject object1 = new JSONObject(s);
+                    JSONArray array = object1.getJSONArray("tmpmsg");
 
-                        if(!TextUtils.isEmpty(s)){
-                            JSONObject object1 = new JSONObject(s);
-                            JSONArray array = object1.getJSONArray("tmpmsg");
+                    for(n=0; n<array.length(); n++) {
+                        String s_obj = array.getString(n);
+                        JSONObject obj2 = new JSONObject(s_obj);
 
-                            for(n=0; n<array.length(); n++) {
-                                String s_obj = array.getString(n);
-                                JSONObject obj2 = new JSONObject(s_obj);
+                        String msgJson = obj2.getString("message");
+                        time = obj2.getString("time");
+                        JSONObject obj3 = new JSONObject(msgJson);
+                        sender = obj3.getString("sender");
+                        msg = obj3.getString("msg");
+                        lan = obj3.getString("language");
+                        receiver = "";
+                        receiver2 = "";
+                        receiver_array = new ArrayList<String>();
 
-                                String msgJson = obj2.getString("message");
-                                time = obj2.getString("time");
-                                JSONObject obj3 = new JSONObject(msgJson);
-                                sender = obj3.getString("sender");
-//                                receiver = obj3.getString("receiver");
-                                msg = obj3.getString("msg");
-                                lan = obj3.getString("language");
-                                receiver = "";
-                                receiver2 = "";
-                                receiver_array = new ArrayList<String>();
-
-                                JSONArray ar = obj3.getJSONArray("receiver");
-                                for(int i=0; i<ar.length(); i++){
-                                    receiver_array.add(ar.getString(i));
-                                    if(i==(ar.length()-1)){
-                                        receiver = receiver+ ar.getString(i);
-                                    } else {
-                                        receiver = receiver+ ar.getString(i)+"/";
-                                    }
-                                    if((ar.length()-1-i)==0){
-                                        receiver2 = receiver2 + ar.getString(array.length()-1-i);
-                                    } else {
-                                        receiver2 = receiver2 + ar.getString(array.length()-1-i) + "/";
-                                    }
-                                }
-//                                dis1 = sender+ "/" +receiver;
-//                                dis2 = receiver + "/" + sender;
-
-                                msgDBHelper = new MsgDBHelper(mContext);
-
-                                returnTransMsg rtm = new returnTransMsg(mContext);
-                                rtm.execute(sender, msg, lan);
+                        JSONArray ar = obj3.getJSONArray("receiver");
+                        for(int i=0; i<ar.length(); i++){
+                            receiver_array.add(ar.getString(i));
+                            if(i==(ar.length()-1)){
+                                receiver = receiver+ ar.getString(i);
+                            } else {
+                                receiver = receiver+ ar.getString(i)+"/";
+                            }
+                            if((ar.length()-1-i)==0){
+                                receiver2 = receiver2 + ar.getString(ar.length()-1-i);
+                            } else {
+                                receiver2 = receiver2 + ar.getString(ar.length()-1-i) + "/";
                             }
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        msgDBHelper = new MsgDBHelper(mContext);
+
+                        returnTransMsg rtm = new returnTransMsg(mContext);
+                        rtm.execute(sender, msg, lan);
                     }
                 }
-            });
-
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-
     }   // GetTmpMsg 끝
 
     // 메시지 번역해서 받아오는 쓰레드
@@ -1083,10 +1201,7 @@ public class SocketService extends Service{
             msgDBHelper = new MsgDBHelper(mContext);
 
             // 메시지가 왔는데 기존에 없는 방일 경우
-            // --------------- test ---------------
             String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+receiver+"' OR relation='"+receiver2+"';";
-            // --------------- test ---------------
-//            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+dis1+"' or relation = '"+dis2+"';";
             SQLiteDatabase db = msgDBHelper.getReadableDatabase();
             Cursor c = db.rawQuery(checkExistRoom, null);
             int existRoom = c.getCount();
@@ -1133,10 +1248,7 @@ public class SocketService extends Service{
             List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
             Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
             // 방 번호 찾는 쿼리
-            // --------------- test ---------------
             String query = "SELECT roomNo FROM chat_room WHERE relation='"+receiver+"'";
-            // --------------- test ---------------
-//            String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
             db = msgDBHelper.getReadableDatabase();
             c = db.rawQuery(query, null);
             int rn = 0;
