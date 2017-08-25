@@ -177,7 +177,6 @@ public class MyFriendDetailProfile extends AppCompatActivity {
         btn_myfriend_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ---------- test ----------
                 SharedPreferences sp = getSharedPreferences("maintain", MODE_PRIVATE);
                 String my_nickname = sp.getString("nickname", "");
                 ArrayList<String> list = new ArrayList<String>();
@@ -201,26 +200,6 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                 intent.putStringArrayListExtra("Receiver", list);
                 startActivity(intent);
                 finish();
-                // ---------- test ----------
-
-//                SharedPreferences sp = getSharedPreferences("maintain", MODE_PRIVATE);
-//                JSONObject jsonObject = new JSONObject();
-//                try {
-//                    jsonObject.put("sender", sp.getString("nickname", ""));
-//                    jsonObject.put("receiver", mem_nickname);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-
-                // 채팅방 DB 생성하기
-//                PlusChatRoom pcr = new PlusChatRoom();
-//                pcr.execute(jsonObject.toString());
-
-                // 채팅방 띄우기
-//                Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
-//                intent.putExtra("Receiver", mem_nickname);
-//                startActivity(intent);
-//                finish();
             }
         });
 

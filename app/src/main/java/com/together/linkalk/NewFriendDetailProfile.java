@@ -307,22 +307,6 @@ public class NewFriendDetailProfile extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String friendPlus = friendObject.toString();
-//                int change_position;
-//                for(int i=0; ; i++){
-//                    if(!newMemberShared.contains(String.valueOf(i))){
-//                        change_position = i;
-//                        break;
-//                    }
-//                }
-//                for(int i=change_position; i>=0; i-- ){
-//                    if(i>0){
-//                        newMemberEditor.putString(String.valueOf(i), newMemberShared.getString(String.valueOf(i-1), ""));
-//                    } else if(i==0){
-//                        newMemberEditor.putString(String.valueOf(i), friendPlus);
-//                    }
-//                    newMemberEditor.commit();
-//                    Log.i("FrProfilePlusIntoShared", friendPlus);
-//                }
                 int change_position = 0;
                 for(int i=0; ; i++){
                     if(!newMemberShared.contains(String.valueOf(i))){

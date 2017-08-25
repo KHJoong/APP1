@@ -16,9 +16,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -32,19 +29,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -86,7 +76,6 @@ public class InChattingActivity extends AppCompatActivity {
 
         // 대화 상대방의 닉네임을 받아오는 intent
         Intent intent = getIntent();
-        // --------------- test ---------------
         other_nickname_array = intent.getStringArrayListExtra("Receiver");
         if((intent.getIntExtra("comment", 0) ==1) && (other_nickname_array.size()>2)){
             for(int i=0; i<other_nickname_array.size(); i++) {
@@ -104,12 +93,7 @@ public class InChattingActivity extends AppCompatActivity {
             tvComment.setVisibility(View.VISIBLE);
             tvComment.setText(comment);
         }
-//        Collections.sort(other_nickname_array, new Comparator<String>() {
-//            @Override
-//            public int compare(String o1, String o2) {
-//                return o1.compareToIgnoreCase(o2);
-//            }
-//        });
+
         for(int i=0; i<other_nickname_array.size(); i++){
             if(!other_nickname_array.get(i).equals(my_nickname)){
                 if(other_nickname.equals("")){
@@ -119,10 +103,6 @@ public class InChattingActivity extends AppCompatActivity {
                 }
             }
         }
-        // --------------- test ---------------
-//        if(!TextUtils.isEmpty(intent.getStringExtra("Receiver"))){
-//            other_nickname = intent.getStringExtra("Receiver");
-//        }
 
         // 액션 바에 있는 이름을 대화 상대의 닉네임으로 표시
         getSupportActionBar().setTitle(other_nickname);
@@ -141,13 +121,6 @@ public class InChattingActivity extends AppCompatActivity {
         lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
 
-        // --------------- test ---------------
-//        Collections.sort(other_nickname_array, new Comparator<String>() {
-//            @Override
-//            public int compare(String o1, String o2) {
-//                return o1.compareToIgnoreCase(o2);
-//            }
-//        });
         other_nickname = "";
         for(int i=0; i<other_nickname_array.size(); i++){
             if(other_nickname.equals("")){
@@ -157,22 +130,13 @@ public class InChattingActivity extends AppCompatActivity {
             }
         }
         System.out.println("chatroomclicked : " + other_nickname);
+
         // 저장된 메시지 불러오는 Thread 실행
         showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
         showMsg.start();
-        // --------------- test ---------------
-
-        // 저장된 메시지 불러오는 Thread 실행
-//        showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
-//        showMsg.start();
 
         // 방 번호 찾는 쿼리
-        // --------------- test ---------------
         String query = "SELECT roomNo FROM chat_room WHERE relation='"+other_nickname+"'";
-        // --------------- test ---------------
-//        String dis1 = my_nickname+"/"+other_nickname;
-//        String dis2 = other_nickname+"/"+my_nickname;
-//        String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
         SQLiteDatabase db = msgDBHelper.getReadableDatabase();
         Cursor c = db.rawQuery(query, null);
         int rn = 0;
@@ -201,9 +165,6 @@ public class InChattingActivity extends AppCompatActivity {
                     }
                 }
 
-//                String dis1 = my_nickname+ "/" +other_nickname;
-//                String dis2 = other_nickname + "/" + my_nickname;
-
                 // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
                 String msg_sender = intent.getStringExtra("Receiver");
                 String dis1 = intent.getStringExtra("dis1");
@@ -214,10 +175,7 @@ public class InChattingActivity extends AppCompatActivity {
                 Log.i("notification msg", msg);
 
                 // 방 번호 찾는 쿼리
-                // --------------- test ---------------
                 String query = "SELECT * FROM chat_room WHERE relation='"+other_nickname+"'";
-                // --------------- test ---------------
-//                String query = "SELECT roomNo FROM chat_room WHERE relation='"+dis1+"' OR relation='"+dis2+"'";
                 SQLiteDatabase db = msgDBHelper.getReadableDatabase();
                 Cursor c = db.rawQuery(query, null);
                 int rn = 0;
@@ -228,7 +186,6 @@ public class InChattingActivity extends AppCompatActivity {
                 }
                 c.close();
                 db.close();
-//                if(!msg_sender.equals(my_nickname) && !other_nickname_array.contains(msg_sender)){
                 if(!msg_sender.equals(my_nickname) && (!rela.equals(dis1) && !rela.equals(dis2))){
                     NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                     Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
@@ -343,7 +300,6 @@ public class InChattingActivity extends AppCompatActivity {
 
     // 저장된 메시지 처음에 불러오는 쓰레드
     class ShowMsg extends Thread{
-        // --------------- test ---------------
         Context mContext;
         String my_nick;
         String dis;
@@ -371,35 +327,6 @@ public class InChattingActivity extends AppCompatActivity {
                 }
             });
         }
-        // --------------- test ---------------
-
-//        Context mContext;
-//        String peo1;
-//        String peo2;
-//        ListView listView;
-//        ChatCommunication_Adapter cca;
-//
-//        Handler handler = new Handler();
-//
-//        public ShowMsg(Context context, String p1, String p2, ListView lv, ChatCommunication_Adapter ad){
-//            mContext = context;
-//            peo1 = p1;
-//            peo2 = p2;
-//            listView = lv;
-//            cca = ad;
-//        }
-//
-//        public void run() {
-//            handler.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    MsgDBHelper msgDBHelper = new MsgDBHelper(mContext);
-//                    msgDBHelper.selectMsg(peo1, peo2, listView, cca);
-//                    listView.setAdapter(cca);
-//                    listView.setSelection(cca.getCount()-1);
-//                }
-//            });
-//        }
     }
 
 }

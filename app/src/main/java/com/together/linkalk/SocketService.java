@@ -67,9 +67,6 @@ public class SocketService extends Service{
     String msg;
     String time;
 
-    String postParams = "";
-    String pre_msg = "";
-    String oLan = "";
     String post_msg ="";
 
     @Override
