@@ -16,8 +16,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:padding="8dp"
-        android:background="#dcdcdc"
-        android:text="누구누구누구누구누구를 초대할 예정입니다."/>
+        android:background="#dcdcdc" />
 
     <include
         android:id="@+id/include"
@@ -37,6 +36,4 @@
         android:layout_above="@id/include"
         ></ListView>
 
-
-    
 </RelativeLayout>

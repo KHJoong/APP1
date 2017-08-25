@@ -462,6 +462,7 @@ public class SocketService extends Service{
                 return e.getMessage();
             } catch (JSONException e) {
                 e.printStackTrace();
+                System.out.println("asdfjafderrer : "+ e.getMessage());
                 return e.getMessage();
             }
         }   // onDoing 끝
@@ -489,10 +490,27 @@ public class SocketService extends Service{
                                 time = obj2.getString("time");
                                 JSONObject obj3 = new JSONObject(msgJson);
                                 sender = obj3.getString("sender");
-                                receiver = obj3.getString("receiver");
+//                                receiver = obj3.getString("receiver");
                                 msg = obj3.getString("msg");
                                 lan = obj3.getString("language");
+                                receiver = "";
+                                receiver2 = "";
+                                receiver_array = new ArrayList<String>();
 
+                                JSONArray ar = obj3.getJSONArray("receiver");
+                                for(int i=0; i<ar.length(); i++){
+                                    receiver_array.add(ar.getString(i));
+                                    if(i==(ar.length()-1)){
+                                        receiver = receiver+ ar.getString(i);
+                                    } else {
+                                        receiver = receiver+ ar.getString(i)+"/";
+                                    }
+                                    if((ar.length()-1-i)==0){
+                                        receiver2 = receiver2 + ar.getString(array.length()-1-i);
+                                    } else {
+                                        receiver2 = receiver2 + ar.getString(array.length()-1-i) + "/";
+                                    }
+                                }
 //                                dis1 = sender+ "/" +receiver;
 //                                dis2 = receiver + "/" + sender;
 

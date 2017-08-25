@@ -66,8 +66,28 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         cursor = db.rawQuery(query2, null);
         int mn = cursor.getCount();
 
+        // ' 저장 에러나는 부분 ''로 바꿔서 저장 가능한 String으로 변환
+        String[] msgArray = msg.split("'");
+        String saveMsg = "";
+        for(int i=0; i<msgArray.length; i++){
+            if(i==0){
+                saveMsg = msgArray[i];
+            } else if(i>0){
+                saveMsg = saveMsg + "''" + msgArray[i];
+            }
+        }
+        String[] transMsgArray = transmsg.split("'");
+        String saveTransMsg = "";
+        for(int i=0; i<transMsgArray.length; i++){
+            if(i==0){
+                saveTransMsg = transMsgArray[i];
+            } else if(i>0){
+                saveTransMsg = saveTransMsg + "''" + transMsgArray[i];
+            }
+        }
+
         // 메시지 가장 마지막 번호에 받은 메세지 추가하기
-        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+msg+"', '"+transmsg+"', '"+time+"', '"+readed+"', '"+sync+"');");
+        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+saveMsg+"', '"+saveTransMsg+"', '"+time+"', '"+readed+"', '"+sync+"');");
 
         // 새로 메시지가 도착한 채팅방의 순위를 0으로 땡겨주는 부분
         // 먼저 채팅방의 순서를 읽어오고

@@ -16,6 +16,9 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -73,6 +76,7 @@ public class InChattingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_chat_room);
 
+        // 단체 채팅방인 경우 누구누구 초대할 건지 보여주는 텍스트뷰
         tvComment = (TextView)findViewById(R.id.tvComment);
         tvComment.setVisibility(View.GONE);
 
