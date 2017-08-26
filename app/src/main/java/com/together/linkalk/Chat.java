@@ -12,6 +12,8 @@ public class Chat {
     String time;
     int sync;
 
+    boolean isTrans;
+
     Chat(String S, String R, String M, String TM, String T, int s){
         sender = S;
         Receiver = R;
@@ -19,6 +21,7 @@ public class Chat {
         transmsg = TM;
         time = T;
         sync = s;
+        isTrans = true;
     }
 
     public String getSender() {
@@ -43,5 +46,15 @@ public class Chat {
 
     public int getSync() {
         return sync;
+    }
+
+    public boolean getIsTrans() { return isTrans; }
+
+    public void setIsTrans() {
+        if(isTrans){
+            isTrans = false;
+        } else {
+            isTrans = true;
+        }
     }
 }

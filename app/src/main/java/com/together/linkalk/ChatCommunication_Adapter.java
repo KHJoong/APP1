@@ -29,8 +29,6 @@ public class ChatCommunication_Adapter extends BaseAdapter {
     ArrayList<Chat> ccaItem;
 
     ViewHolderChat viewHolder;
-    TextView inviter;
-    TextView invited;
 
     String savedDate;
     String[] savedDateDis;
@@ -70,7 +68,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
         String sender = ccaItem.get(position).getSender();
         SharedPreferences sharedPreferences = ccaContext.getSharedPreferences("maintain", ccaContext.MODE_PRIVATE);
@@ -147,9 +145,12 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
         }  else if(!sender.equals(nickname)){
             viewHolder.sender.setText(ccaItem.get(position).getSender());
-            viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
+            if(ccaItem.get(position).getIsTrans()){
+                viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
+            } else {
+                viewHolder.msg.setText(ccaItem.get(position).getMsg());
+            }
             viewHolder.time.setText(savedHour + " : " + savedMin);
-
             viewHolder.msg.setBackgroundResource(R.drawable.other);
 
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);

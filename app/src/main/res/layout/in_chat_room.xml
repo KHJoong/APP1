@@ -33,7 +33,10 @@
         android:layout_width="395dp"
         android:layout_height="match_parent"
         android:clickable="false"
+        android:focusable="false"
         android:layout_above="@id/include"
+        android:descendantFocusability="afterDescendants"
+        android:listSelector="@android:color/transparent"
         ></ListView>
 
 </RelativeLayout>

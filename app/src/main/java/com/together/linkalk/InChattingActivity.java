@@ -18,11 +18,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -128,6 +127,27 @@ public class InChattingActivity extends AppCompatActivity {
         lvChat.setDivider(null);
         lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
+        lvChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int po, long id) {
+                if(!ccAdapter.ccaItem.get(po).getSender().equals(my_nickname)){
+                    final TextView tv = (TextView)view.findViewById(R.id.tv_my_communi);
+                    final Handler handler = new Handler();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(ccAdapter.ccaItem.get(po).getIsTrans()){
+                                ccAdapter.ccaItem.get(po).setIsTrans();
+                                tv.setText(ccAdapter.ccaItem.get(po).getMsg());
+                            } else {
+                                ccAdapter.ccaItem.get(po).setIsTrans();
+                                tv.setText(ccAdapter.ccaItem.get(po).getTransmsg());
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
         // 리스트뷰 헤더 설정
         if(other_nickname_array.size()>2){
@@ -375,10 +395,12 @@ public class InChattingActivity extends AppCompatActivity {
                                 if(cursor.moveToFirst()){
                                     rn =  cursor.getInt(0);
                                 }
+                                cursor.close();
 
                                 qu = "SELECT msgNo FROM chat_msg WHERE roomNo='"+rn+"'";
                                 cursor = db.rawQuery(qu, null);
                                 int mn = cursor.getCount();
+                                cursor.close();
 
                                 if(nextStartMsgPosition<=mn){
                                     int ct = 0;
