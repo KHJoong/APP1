@@ -122,7 +122,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
             rn =  cursor.getInt(0);
         }
 
-        query = "SELECT * FROM chat_msg WHERE roomNo='"+rn+"' ORDER BY msgNo ASC";
+        query = "SELECT * FROM chat_msg WHERE roomNo='"+rn+"' ORDER BY msgNo DESC LIMIT 15";
         Cursor c = db.rawQuery(query, null);
         if(c.moveToFirst()){
             do{
@@ -132,13 +132,42 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 String transmsg = c.getString(4);
                 String time = c.getString(5);
                 Chat chat = new Chat(sender, dist, msg, transmsg, time, 1);
-                ad.addItem(chat);
+                ad.add(chat);
                 db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
             }while(c.moveToNext());
         }
         cursor.close();
         c.close();
         db.close();
+
+//        String my_nick = my;
+//        String dist = dis;
+//
+//        SQLiteDatabase db = getReadableDatabase();
+//        String query = "SELECT roomNo FROM chat_room WHERE relation='"+dist+"'";
+//        Cursor cursor = db.rawQuery(query, null);
+//        int rn = 0;
+//        if(cursor.moveToFirst()){
+//            rn =  cursor.getInt(0);
+//        }
+//
+//        query = "SELECT * FROM chat_msg WHERE roomNo='"+rn+"' ORDER BY msgNo ASC";
+//        Cursor c = db.rawQuery(query, null);
+//        if(c.moveToFirst()){
+//            do{
+//                int mn = c.getInt(1);
+//                String sender = c.getString(2);
+//                String msg = c.getString(3);
+//                String transmsg = c.getString(4);
+//                String time = c.getString(5);
+//                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1);
+//                ad.addItem(chat);
+//                db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
+//            }while(c.moveToNext());
+//        }
+//        cursor.close();
+//        c.close();
+//        db.close();
     }
 
     // 대화방에 들어와 있을 때, 새로 도착한 메시지 로딩

@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -44,6 +46,10 @@ public class InChattingActivity extends AppCompatActivity {
 
     ListView lvChat;
     ChatCommunication_Adapter ccAdapter;
+    View header;
+
+    TextView header_inviter;
+    TextView header_invited;
 
     TextView tvComment;
     EditText etMsg;
@@ -51,7 +57,7 @@ public class InChattingActivity extends AppCompatActivity {
 
     MsgDBHelper msgDBHelper;
     String other_nickname = "";
-    ArrayList<String> other_nickname_array;   // test
+    ArrayList<String> other_nickname_array;
     String my_nickname;
     String my_language;
     String comment;
@@ -60,6 +66,8 @@ public class InChattingActivity extends AppCompatActivity {
     Thread showMsg;
     IntentFilter intentFilter2;
     BroadcastReceiver broadcastReceiver2;
+
+    int nextStartMsgPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +129,30 @@ public class InChattingActivity extends AppCompatActivity {
         lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
 
+        // 리스트뷰 헤더 설정
+        if(other_nickname_array.size()>2){
+            header = getLayoutInflater().inflate(R.layout.chatcommuni_header, null, false);
+            header_inviter = (TextView)header.findViewById(R.id.chat_header_inviter);
+            header_invited = (TextView)header.findViewById(R.id.chat_header_invited);
+            String st_inviter = my_nickname+" 님이";
+            String st_invited = "";
+            for(int i=0; i<other_nickname_array.size(); i++) {
+                if(!my_nickname.equals(other_nickname_array.get(i))){
+                    if(i==0){
+                        st_invited = other_nickname_array.get(i);
+                    } else if((i <= (other_nickname_array.size()-1)) && (i != 0 )){
+                        st_invited = st_invited + ", " + other_nickname_array.get(i);
+                    }
+                }
+                if(i==(other_nickname_array.size()-1)){
+                    st_invited = st_invited + " 님을 초대하였습니다.";
+                }
+            }
+            header_inviter.setText(st_inviter);
+            header_invited.setText(st_invited);
+            lvChat.addHeaderView(header);
+        }
+
         other_nickname = "";
         for(int i=0; i<other_nickname_array.size(); i++){
             if(other_nickname.equals("")){
@@ -129,7 +161,6 @@ public class InChattingActivity extends AppCompatActivity {
                 other_nickname = other_nickname + "/" + other_nickname_array.get(i);
             }
         }
-        System.out.println("chatroomclicked : " + other_nickname);
 
         // 저장된 메시지 불러오는 Thread 실행
         showMsg = new Thread(new ShowMsg(getApplicationContext(), my_nickname, other_nickname, lvChat, ccAdapter));
@@ -307,6 +338,7 @@ public class InChattingActivity extends AppCompatActivity {
         ChatCommunication_Adapter cca;
 
         Handler handler = new Handler();
+        MsgDBHelper msgDBHelper;
 
         public ShowMsg(Context context, String my, String dist, ListView lv, ChatCommunication_Adapter ad){
             mContext = context;
@@ -320,10 +352,58 @@ public class InChattingActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    MsgDBHelper msgDBHelper = new MsgDBHelper(mContext);
+                    msgDBHelper = new MsgDBHelper(mContext);
                     msgDBHelper.selectMsg(my_nick, dis, listView, cca);
                     listView.setAdapter(cca);
                     listView.setSelection(cca.getCount()-1);
+
+                    // Listview 저장 메시지 불러오는 페이징
+                    nextStartMsgPosition = 15;
+                    lvChat.setOnScrollListener(new AbsListView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                        }
+
+                        @Override
+                        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                            if(firstVisibleItem<5 && firstVisibleItem!=0){
+                                SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+                                String qu = "SELECT roomNo FROM chat_room WHERE relation='"+other_nickname+"'";
+                                Cursor cursor = db.rawQuery(qu, null);
+                                int rn = 0;
+                                if(cursor.moveToFirst()){
+                                    rn =  cursor.getInt(0);
+                                }
+
+                                qu = "SELECT msgNo FROM chat_msg WHERE roomNo='"+rn+"'";
+                                cursor = db.rawQuery(qu, null);
+                                int mn = cursor.getCount();
+
+                                if(nextStartMsgPosition<=mn){
+                                    int ct = 0;
+                                    qu = "SELECT * FROM chat_msg WHERE roomNo='"+rn+"' ORDER BY msgNo DESC LIMIT 15 OFFSET "+nextStartMsgPosition+"";
+                                    cursor = db.rawQuery(qu, null);
+                                    while(cursor.moveToNext()){
+                                        final String sender = cursor.getString(2);
+                                        final String msg = cursor.getString(3);
+                                        final String transmsg = cursor.getString(4);
+                                        final String time = cursor.getString(5);
+                                        Chat chat = new Chat(sender, other_nickname, msg, transmsg, time, 1);
+                                        ccAdapter.add(chat);
+                                        ct = ct+1;
+                                    }
+                                    ccAdapter.notifyDataSetChanged();
+                                    int set = ct + firstVisibleItem;
+                                    view.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+                                    view.setSelection(set);
+                                    cursor.close();
+                                    db.close();
+                                    nextStartMsgPosition = nextStartMsgPosition+15;
+                                }
+                            }
+                        }
+                    });
                 }
             });
         }
