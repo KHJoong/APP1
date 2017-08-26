@@ -190,8 +190,8 @@ public class SocketService extends Service{
                                 }
 
 
-                                returnTransMsg rtm = new returnTransMsg(mContext);
-                                rtm.execute(sender, msg, lan);
+                                returnTransMsg rtm = new returnTransMsg(mContext, sender, msg, lan);
+                                rtm.execute();
 
                             }
                         });
@@ -635,12 +635,13 @@ public class SocketService extends Service{
                         }
                         msgDBHelper = new MsgDBHelper(mContext);
 
-                        returnTransMsg rtm = new returnTransMsg(mContext);
-                        rtm.execute(sender, msg, lan);
+                        returnTransMsg rtm = new returnTransMsg(mContext, sender, msg, lan);
+                        rtm.execute();
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                System.out.println("GetTmpMsgJSONError : " + e.getMessage());
             }
         }
     }   // GetTmpMsg 끝
@@ -1084,30 +1085,33 @@ public class SocketService extends Service{
 //    }   // 메시지 번역 Thread 끝
 
     // 메시지 번역한 결과를 받아오는 Asynctask
-    class returnTransMsg extends AsyncTask<String, Void, String> {
+    class returnTransMsg extends AsyncTask<Void, Void, String> {
 
         Context mContext;
+        String oNick;
+        String beforemsg;
+        String oLan;
 
-        returnTransMsg(Context context){
+
+        returnTransMsg(Context context, String sender, String msg, String language){
             mContext = context;
+            oNick = sender;
+            beforemsg = msg;
+            oLan = language;
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(Void... params) {
             try{
                 SharedPreferences sharedPreferences = getSharedPreferences("maintain", MODE_PRIVATE);
                 String mNick = sharedPreferences.getString("nickname", "");
                 String mLan = sharedPreferences.getString("language", "");
 
-                String oNick = params[0];
-                String msg = params[1];
-                String oLan = params[2];
-
                 if(mNick.equals(oNick)){
-                    return msg;
+                    return beforemsg;
                 } else {
                     JSONObject obt = new JSONObject();
-                    obt.put("msg", msg);
+                    obt.put("msg", beforemsg);
                     obt.put("my_language", mLan);
                     obt.put("other_language", oLan);
 
@@ -1215,7 +1219,7 @@ public class SocketService extends Service{
                 GetChatRoom gcr = new GetChatRoom();
                 gcr.execute(jsonObject.toString());
             } else {
-                msgDBHelper.insertMsg(sender, receiver, msg, post_msg, time, 1, 1);
+                msgDBHelper.insertMsg(sender, receiver, beforemsg, post_msg, time, 1, 1);
 
                 // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
                 // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함

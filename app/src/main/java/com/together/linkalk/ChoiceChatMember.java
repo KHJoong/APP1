@@ -3,6 +3,8 @@ package com.together.linkalk;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -245,10 +247,21 @@ public class ChoiceChatMember extends AppCompatActivity {
                 listed.add(rel[i]);
             }
 
+            // 기존에 메시지 주고 받던 채팅방인지 아닌지 확인
+            MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
+            SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+            String qu = "SELECT msgNo FROM chat_msg WHERE roomNo='"+roomNo+"'";
+            Cursor cursor = db.rawQuery(qu, null);
+            int msgNo = cursor.getCount();
+
             // 채팅방 띄우기
             Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
             intent.putStringArrayListExtra("Receiver", listed);
-            intent.putExtra("comment", 1);
+            if(msgNo == 0){
+                intent.putExtra("comment", 1);
+            } else {
+                intent.putExtra("comment", 0);
+            }
             startActivity(intent);
             finish();
         }

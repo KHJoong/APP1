@@ -73,6 +73,12 @@ public class InChattingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_chat_room);
 
+        // 메시지 목록 보여줄 리스트뷰 설정
+        lvChat = (ListView)findViewById(R.id.lvCommunication);
+        lvChat.setDivider(null);
+        lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
+
         // 단체 채팅방인 경우 누구누구 초대할 건지 보여주는 텍스트뷰
         tvComment = (TextView)findViewById(R.id.tvComment);
         tvComment.setVisibility(View.GONE);
@@ -97,6 +103,7 @@ public class InChattingActivity extends AppCompatActivity {
                     comment = comment + " 님을 초대할 예정입니다.";
                 }
             }
+            lvChat.setVisibility(View.GONE);
             tvComment.setVisibility(View.VISIBLE);
             tvComment.setText(comment);
         }
@@ -122,26 +129,29 @@ public class InChattingActivity extends AppCompatActivity {
         etMsg = (EditText) view.findViewById(R.id.etSendedMsg);
         btnSend = (ImageView) view.findViewById(R.id.btnSendMsg);
 
-        // 메시지 목록 보여줄 리스트뷰 설정
-        lvChat = (ListView)findViewById(R.id.lvCommunication);
-        lvChat.setDivider(null);
-        lvChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        ccAdapter = new ChatCommunication_Adapter(getApplicationContext());
+        // 리스트뷰 클릭하면 메시지 원본<->번역 변경
         lvChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int po, long id) {
-                if(!ccAdapter.ccaItem.get(po).getSender().equals(my_nickname)){
+                int ct = 0;
+                if(other_nickname_array.size()>2){
+                    ct = po-1;
+                } else {
+                    ct = po;
+                }
+                if(!ccAdapter.ccaItem.get(ct).getSender().equals(my_nickname)){
                     final TextView tv = (TextView)view.findViewById(R.id.tv_my_communi);
                     final Handler handler = new Handler();
+                    final int finalCt = ct;
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if(ccAdapter.ccaItem.get(po).getIsTrans()){
-                                ccAdapter.ccaItem.get(po).setIsTrans();
-                                tv.setText(ccAdapter.ccaItem.get(po).getMsg());
+                            if(ccAdapter.ccaItem.get(finalCt).getIsTrans()){
+                                ccAdapter.ccaItem.get(finalCt).setIsTrans();
+                                tv.setText(ccAdapter.ccaItem.get(finalCt).getMsg());
                             } else {
-                                ccAdapter.ccaItem.get(po).setIsTrans();
-                                tv.setText(ccAdapter.ccaItem.get(po).getTransmsg());
+                                ccAdapter.ccaItem.get(finalCt).setIsTrans();
+                                tv.setText(ccAdapter.ccaItem.get(finalCt).getTransmsg());
                             }
                         }
                     });
@@ -276,6 +286,7 @@ public class InChattingActivity extends AppCompatActivity {
                     sender.start();
 
                     etMsg.setText(null);
+                    lvChat.setVisibility(View.VISIBLE);
                     tvComment.setVisibility(View.GONE);
                 }
             }
