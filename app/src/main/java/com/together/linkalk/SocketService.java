@@ -190,7 +190,7 @@ public class SocketService extends Service{
                                 }
 
 
-                                returnTransMsg rtm = new returnTransMsg(mContext, sender, msg, lan);
+                                returnTransMsg rtm = new returnTransMsg(mContext, sender, receiver, msg, lan);
                                 rtm.execute();
 
                             }
@@ -206,6 +206,12 @@ public class SocketService extends Service{
 
     // 상대방이 말을 걸었을 경우 채팅방 번호 받아서 추가하는 Asynctask
     class GetChatRoom extends AsyncTask<String, Void, String> {
+
+        Context mContext;
+
+        GetChatRoom(Context context){
+            mContext = context;
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -303,6 +309,51 @@ public class SocketService extends Service{
             intent.setAction("com.together.broadcast.room.integer");
             intent.putExtra("reload", 1);
             sendBroadcast(intent);
+
+            // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+            // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+            // InChattingActivity
+            Intent intent2 = new Intent();
+            intent2.setAction("com.together.broadcast.chat.integer");
+            intent2.putExtra("plus", 1);
+            intent2.putExtra("msg", post_msg);
+            intent2.putExtra("dis1", receiver);
+            intent2.putExtra("dis2", receiver2);
+            intent2.putExtra("Receiver", sender);
+            intent2.putStringArrayListExtra("ReceiverArray", receiver_array);
+            sendBroadcast(intent2);
+
+            // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
+            // com.together.linkalk.InChattingActivity
+            ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+            Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+            // 방 번호 찾는 쿼리
+            String query = "SELECT roomNo FROM chat_room WHERE relation='"+receiver+"'";
+            SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+            Cursor c = db.rawQuery(query, null);
+            int rn = 0;
+            if(c.moveToFirst()){
+                rn =  c.getInt(c.getColumnIndex("roomNo"));
+            }
+            if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
+                NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
+                Intent it = new Intent(mContext, InChattingActivity.class);
+                it.putStringArrayListExtra("Receiver", receiver_array);
+                Notification.Builder builder = new Notification.Builder(mContext);
+                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, it, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                        .setTicker("Linkalk")
+                        .setWhen(System.currentTimeMillis())
+                        .setContentTitle(sender).setContentText(post_msg)
+                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setOngoing(false);
+                notificationManager.notify(rn, builder.build());
+            }
+            c.close();
+            db.close();
         }
     }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
 
@@ -635,7 +686,7 @@ public class SocketService extends Service{
                         }
                         msgDBHelper = new MsgDBHelper(mContext);
 
-                        returnTransMsg rtm = new returnTransMsg(mContext, sender, msg, lan);
+                        returnTransMsg rtm = new returnTransMsg(mContext, sender, receiver,msg, lan);
                         rtm.execute();
                     }
                 }
@@ -1091,13 +1142,15 @@ public class SocketService extends Service{
         String oNick;
         String beforemsg;
         String oLan;
+        String receive;
 
 
-        returnTransMsg(Context context, String sender, String msg, String language){
+        returnTransMsg(Context context, String sender, String rec, String msg, String language){
             mContext = context;
             oNick = sender;
             beforemsg = msg;
             oLan = language;
+            receive = rec;
         }
 
         @Override
@@ -1202,7 +1255,7 @@ public class SocketService extends Service{
             msgDBHelper = new MsgDBHelper(mContext);
 
             // 메시지가 왔는데 기존에 없는 방일 경우
-            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+receiver+"' OR relation='"+receiver2+"';";
+            String checkExistRoom = "SELECT * FROM chat_room WHERE relation = '"+receive+"' OR relation='"+receiver2+"';";
             SQLiteDatabase db = msgDBHelper.getReadableDatabase();
             Cursor c = db.rawQuery(checkExistRoom, null);
             int existRoom = c.getCount();
@@ -1216,10 +1269,10 @@ public class SocketService extends Service{
                 }
 
                 // 채팅방 DB 생성하기
-                GetChatRoom gcr = new GetChatRoom();
+                GetChatRoom gcr = new GetChatRoom(mContext);
                 gcr.execute(jsonObject.toString());
             } else {
-                msgDBHelper.insertMsg(sender, receiver, beforemsg, post_msg, time, 1, 1);
+                msgDBHelper.insertMsg(sender, receive, beforemsg, post_msg, time, 1, 1);
 
                 // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
                 // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
@@ -1228,52 +1281,52 @@ public class SocketService extends Service{
                 intent.setAction("com.together.broadcast.room.integer");
                 intent.putExtra("reload", 1);
                 sendBroadcast(intent);
-            }
 
-            // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
-            // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
-            // InChattingActivity
-            Intent intent2 = new Intent();
-            intent2.setAction("com.together.broadcast.chat.integer");
-            intent2.putExtra("plus", 1);
-            intent2.putExtra("msg", post_msg);
-            intent2.putExtra("dis1", receiver);
-            intent2.putExtra("dis2", receiver2);
-            intent2.putExtra("Receiver", sender);
-            intent2.putStringArrayListExtra("ReceiverArray", receiver_array);
-            sendBroadcast(intent2);
+                // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
+                // 이 Broadcast를 받아서 새로 온 메시지를 리스트에 추가함
+                // InChattingActivity
+                Intent intent2 = new Intent();
+                intent2.setAction("com.together.broadcast.chat.integer");
+                intent2.putExtra("plus", 1);
+                intent2.putExtra("msg", post_msg);
+                intent2.putExtra("dis1", receive);
+                intent2.putExtra("dis2", receiver2);
+                intent2.putExtra("Receiver", sender);
+                intent2.putStringArrayListExtra("ReceiverArray", receiver_array);
+                sendBroadcast(intent2);
 
-            // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
-            // com.together.linkalk.InChattingActivity
-            ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
-            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-            Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
-            // 방 번호 찾는 쿼리
-            String query = "SELECT roomNo FROM chat_room WHERE relation='"+receiver+"'";
-            db = msgDBHelper.getReadableDatabase();
-            c = db.rawQuery(query, null);
-            int rn = 0;
-            if(c.moveToFirst()){
-                rn =  c.getInt(c.getColumnIndex("roomNo"));
+                // 현재 보여주고 있는 최상위 Activity가 뭔지 출력해주는 부분/ 채팅방에 들어가있는 상태가 아니면 노티 띄워줌
+                // com.together.linkalk.InChattingActivity
+                ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+                List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+                // 방 번호 찾는 쿼리
+                String query = "SELECT roomNo FROM chat_room WHERE relation='"+receive+"'";
+                db = msgDBHelper.getReadableDatabase();
+                c = db.rawQuery(query, null);
+                int rn = 0;
+                if(c.moveToFirst()){
+                    rn =  c.getInt(c.getColumnIndex("roomNo"));
+                }
+                if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
+                    NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
+                    Intent intent3 = new Intent(mContext, InChattingActivity.class);
+                    intent3.putStringArrayListExtra("Receiver", receiver_array);
+                    Notification.Builder builder = new Notification.Builder(mContext);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent3, PendingIntent.FLAG_UPDATE_CURRENT);
+                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                            .setTicker("Linkalk")
+                            .setWhen(System.currentTimeMillis())
+                            .setContentTitle(sender).setContentText(post_msg)
+                            .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setOngoing(false);
+                    notificationManager.notify(rn, builder.build());
+                }
+                c.close();
+                db.close();
             }
-            if(!taskInfo.get(0).topActivity.getClassName().equals("com.together.linkalk.InChattingActivity")){
-                NotificationManager notificationManager= (NotificationManager)mContext.getSystemService(NOTIFICATION_SERVICE);
-                Intent intent = new Intent(mContext, InChattingActivity.class);
-                intent.putStringArrayListExtra("Receiver", receiver_array);
-                Notification.Builder builder = new Notification.Builder(mContext);
-                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, (int)System.currentTimeMillis()/1000, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                        .setTicker("Linkalk")
-                        .setWhen(System.currentTimeMillis())
-                        .setContentTitle(sender).setContentText(post_msg)
-                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setOngoing(false);
-                notificationManager.notify(rn, builder.build());
-            }
-            c.close();
-            db.close();
         }
     }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
 
