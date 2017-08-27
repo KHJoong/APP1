@@ -120,6 +120,14 @@
         </activity>
         <!--Chatting activity end-->
 
+        <!--Chatting activity start-->
+        <activity
+            android:name=".DialogInChattingActivity"
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
+
+        </activity>
+        <!--Chatting activity end-->
+
         <!--Google Firebase (To FCM) start-->
         <service
             android:name=".FirebaseMessagingService">

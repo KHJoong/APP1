@@ -24,6 +24,7 @@
         android:layout_gravity="right"
         android:gravity="center_vertical"
         android:textSize="18sp"
+        android:textColor="#ababab"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="10dp"
@@ -55,7 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/tv_my_communi"
             android:layout_marginTop="9dp"
-            android:layout_marginRight="15dp"/>
+            android:layout_marginRight="15dp"
+            android:textColor="#ababab"/>
     </RelativeLayout>
 
 </LinearLayout>
