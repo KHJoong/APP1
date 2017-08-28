@@ -325,6 +325,11 @@ public class MyProfileModify extends AppCompatActivity {
                 SharedPreferences.Editor MyProfileEditor = newMemberShared.edit();
                 if(!TextUtils.isEmpty(get_language)){
                     MyProfileEditor.putString("language", get_language);
+                    SharedPreferences mtShared = getSharedPreferences("maintain", MODE_PRIVATE);
+                    SharedPreferences.Editor mtSharedEditor = mtShared.edit();
+                    mtSharedEditor.putString("language", get_language);
+                    mtSharedEditor.commit();
+
                 }
                 if(!TextUtils.isEmpty(get_location)){
                     MyProfileEditor.putString("location", get_location);
