@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -44,7 +45,13 @@ import java.net.URL;
 
 public class MainSettingFragment extends Fragment {
 
+    Button member_pic_camera;
+    Button member_pic_gallery;
+    Button member_pic_del;
+    ImageView member_pic;
+
     Button member_modify_button;
+
 
     public MainSettingFragment(){
     }
@@ -57,41 +64,60 @@ public class MainSettingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         RelativeLayout layout = (RelativeLayout)inflater.inflate(R.layout.main_setting_activity, container, false);
-        member_modify_button = (Button)layout.findViewById(R.id.member_modify_button);
-        member_modify_button.setOnClickListener(new View.OnClickListener() {
+
+        Button.OnClickListener btnClickListener = new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.member_modify_button:
+                        // 핸드폰 네트워크 상태 체크
+                        String status = NetWorkStatusCheck.getConnectivityStatusString(getActivity().getApplicationContext());
+                        if(status.equals("WIFI") || status.equals("MOBILE")){
+                            // 네트워크 상태가 연결되어 있으면, 서버에서 내 정보 받아와서 출력
+                            GetMyProfile getMyProfile = new GetMyProfile();
+                            getMyProfile.execute();
+                        } else if(status.equals("NOT")){
+                            SharedPreferences myProfilerShared = getActivity().getSharedPreferences("MyProfile", Context.MODE_PRIVATE);
+                            SharedPreferences loggedMemberShared = getActivity().getSharedPreferences("maintain", Context.MODE_PRIVATE);
 
-                // 핸드폰 네트워크 상태 체크
-                String status = NetWorkStatusCheck.getConnectivityStatusString(getActivity().getApplicationContext());
-                if(status.equals("WIFI") || status.equals("MOBILE")){
-                    // 네트워크 상태가 연결되어 있으면, 서버에서 내 정보 받아와서 출력
-                    GetMyProfile getMyProfile = new GetMyProfile();
-                    getMyProfile.execute();
-                } else if(status.equals("NOT")){
-                    SharedPreferences myProfilerShared = getActivity().getSharedPreferences("MyProfile", Context.MODE_PRIVATE);
-                    SharedPreferences loggedMemberShared = getActivity().getSharedPreferences("maintain", Context.MODE_PRIVATE);
-
-                    if(myProfilerShared.getString("nickname", "").equals(loggedMemberShared.getString("nickname", ""))){
-                        // 네트워크 상태가 끊어져 있으면, 제일 마지막에 저장했던 내 정보를 불러오거나
-                        Intent intent = new Intent(getActivity().getApplicationContext(), MyProfileModify.class);
-                        startActivity(intent);
-                    } else {
-                        // 네트워크 상태가 끊어져 있으면, 제일 마지막에 저장했던 정보도 없을 경우 메시지 출력력
-                        android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                        alertDialogBuilder.setMessage("네트워크 연결이 되어있지 않아 정보를 불러올 수 없습니다.")
-                                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                }).create().show();
-                    }
+                            if(myProfilerShared.getString("nickname", "").equals(loggedMemberShared.getString("nickname", ""))){
+                                // 네트워크 상태가 끊어져 있으면, 제일 마지막에 저장했던 내 정보를 불러오거나
+                                Intent intent = new Intent(getActivity().getApplicationContext(), MyProfileModify.class);
+                                startActivity(intent);
+                            } else {
+                                // 네트워크 상태가 끊어져 있으면, 제일 마지막에 저장했던 정보도 없을 경우 메시지 출력력
+                                android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                                alertDialogBuilder.setMessage("네트워크 연결이 되어있지 않아 정보를 불러올 수 없습니다.")
+                                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                            }
+                                        }).create().show();
+                            }
+                        }
+                        break;
+                    case R.id.member_pic_camera:
+                        break;
+                    case R.id.member_pic_gallery:
+                        break;
+                    case R.id.member_pic_del:
+                        break;
                 }
-
             }
-        });
+        };
+
+        member_pic = (ImageView)layout.findViewById(R.id.member_pic);
+        member_modify_button = (Button)layout.findViewById(R.id.member_modify_button);
+        member_modify_button.setOnClickListener(btnClickListener);
+        member_pic_camera = (Button)layout.findViewById(R.id.member_pic_camera);
+        member_pic_camera.setOnClickListener(btnClickListener);
+        member_pic_gallery = (Button)layout.findViewById(R.id.member_pic_gallery);
+        member_pic_gallery.setOnClickListener(btnClickListener);
+        member_pic_del = (Button)layout.findViewById(R.id.member_pic_del);
+        member_pic_del.setOnClickListener(btnClickListener);
+
         return layout;
-    }
+    }   // onCreateView 끝
 
     // 회원 정보 수정을 위해 서버에 등록된 나의 정보를 받아오는 Async
     class GetMyProfile extends AsyncTask<Void, Void, String> {
