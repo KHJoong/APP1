@@ -7,7 +7,7 @@
     >
 
     <ListView
-        android:id="@+id/lvChat"
+        android:id="@+id/lvRoom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"

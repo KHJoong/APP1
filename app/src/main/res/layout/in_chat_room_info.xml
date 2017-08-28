@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="300sp"
+    android:orientation="vertical" android:layout_width="250dp"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true">
 
@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:text="대화중인 친구"
+        android:text="나와 대화중인 친구"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginTop="8dp"
@@ -19,6 +19,14 @@
     <ListView
         android:id="@+id/lvChatRoomInfo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="250dp"></ListView>
+    <Button
+        android:id="@+id/lvChatRoomInfoBtn"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="#eeeeee"
+        android:layout_marginTop="8dp"
+        android:text="방 나가기"
+        android:textSize="12sp"/>
 
 </LinearLayout>

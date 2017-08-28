@@ -1,7 +1,9 @@
 package com.together.linkalk;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -34,7 +36,7 @@ import java.util.zip.CRC32;
 
 public class MainChatFragment extends Fragment {
 
-    ListView lvChat;
+    ListView lvRoom;
     ChatList_Adapter clAdapter;
 
     // 채팅방 목록 띄워주는 Thread
@@ -60,7 +62,7 @@ public class MainChatFragment extends Fragment {
                 if(intent.getAction().equals("com.together.broadcast.room.integer")){
                     i = intent.getIntExtra("reload", 0);
                     if(i == 1){
-                        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
+                        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter);
                         showRoom.start();
                     }
                 }
@@ -71,17 +73,42 @@ public class MainChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         RelativeLayout layout = (RelativeLayout)inflater.inflate(R.layout.main_chat_activity, container, false);
-        lvChat = (ListView)layout.findViewById(R.id.lvChat);
+        lvRoom = (ListView)layout.findViewById(R.id.lvRoom);
         clAdapter = new ChatList_Adapter(getActivity().getApplicationContext());
-        lvChat.setAdapter(clAdapter);
+        lvRoom.setAdapter(clAdapter);
 
-        lvChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lvRoom.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                final Room room = (Room)parent.getItemAtPosition(position);
+                AlertDialog.Builder chatRoomExitDialogBuilder = new AlertDialog.Builder(getActivity());
+                chatRoomExitDialogBuilder.setTitle("채팅방 삭제");
+                chatRoomExitDialogBuilder
+                        .setMessage(room.getRoomName()+"을 나가시겠습니까?")
+                        .setCancelable(true)
+                        .setPositiveButton("나가기", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ChatRoomExit(room.getRoomNum(), position);
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog chatRoomExitDialog = chatRoomExitDialogBuilder.create();
+                chatRoomExitDialog.show();
+                return true;
+            }
+        });
+
+        lvRoom.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Room room = (Room)parent.getItemAtPosition(position);
-//                String roomName = room.getRoomName();
 
-                // --------------- test ---------------
                 String relation = room.getRoomRelation();
                 System.out.println("chatroomclick : "+relation);
                 String[] rel = relation.split("/");
@@ -89,11 +116,9 @@ public class MainChatFragment extends Fragment {
                 for(int i=0; i<rel.length; i++){
                     list.add(rel[i]);
                 }
-                // --------------- test ---------------
 
                 Intent intent = new Intent(getActivity().getApplicationContext(), InChattingActivity.class);
-                intent.putStringArrayListExtra("Receiver", list);   // --------------- test
-//                intent.putExtra("Receiver", roomName);
+                intent.putStringArrayListExtra("Receiver", list);
                 startActivity(intent);
             }
         });
@@ -124,7 +149,7 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvChat, clAdapter);
+        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter);
         showRoom.start();
     }
 
@@ -138,6 +163,33 @@ public class MainChatFragment extends Fragment {
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+    public void ChatRoomExit(int roomNo, int position){
+
+        int rn = roomNo;
+        final int po = position;
+
+        MsgDBHelper dbHelper = new MsgDBHelper(getActivity().getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String deleteMsgQuery = "DELETE FROM chat_msg WHERE roomNo='"+rn+"';";
+        db.execSQL(deleteMsgQuery);
+
+        String deleteRoomQuery = "DELETE FROM chat_room WHERE roomNo='"+rn+"';";
+        db.execSQL(deleteRoomQuery);
+
+        db.close();
+        dbHelper.close();
+
+        Handler h = new Handler();
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                clAdapter.claItem.remove(po);
+                lvRoom.setAdapter(clAdapter);
+            }
+        });
     }
 
     // 저장된 채팅방 처음에 불러오는 쓰레드
