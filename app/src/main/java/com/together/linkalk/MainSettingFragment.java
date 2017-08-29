@@ -1,13 +1,31 @@
 package com.together.linkalk;
 
+import android.*;
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +35,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -29,6 +48,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,12 +59,23 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by kimhj on 2017-07-06.
  */
 
 public class MainSettingFragment extends Fragment {
+
+    private final static int PICT_CROP_CODE = 5555;
+    private final static int CAMERA_CODE = 1111;
+    private final static int GALLERY_CODE = 3333;
+    private static Uri mUri;
+    private static String mCurrentPhotoPath;
 
     Button member_pic_camera;
     Button member_pic_gallery;
@@ -97,8 +129,10 @@ public class MainSettingFragment extends Fragment {
                         }
                         break;
                     case R.id.member_pic_camera:
+                        TakePicIntent();
                         break;
                     case R.id.member_pic_gallery:
+                        GetPicIntent();
                         break;
                     case R.id.member_pic_del:
                         break;
@@ -118,6 +152,106 @@ public class MainSettingFragment extends Fragment {
 
         return layout;
     }   // onCreateView 끝
+
+    public File createImageFile() throws IOException {
+        Log.i("createImageFile", "Call");
+        // Create an image file name, 외장 메모리 저장
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = timeStamp + ".jpg";
+        File imageFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/linkalkPic/" + imageFileName);
+
+        if(!imageFile.exists()) {
+            imageFile.getParentFile().mkdirs();
+            imageFile.createNewFile();
+        }
+
+        mCurrentPhotoPath = imageFile.getAbsolutePath();
+
+        return imageFile;
+    }
+
+    public void TakePicIntent(){
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        mUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "edp_image.jpg"));
+//        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mUri);
+//        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+//            startActivityForResult(takePictureIntent, CAMERA_CODE);
+//        }
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Log.e("captureCamera Error", ex.toString());
+            }
+            if (photoFile != null) {
+                // photoURI : file://로 시작, FileProvider(Content Provider 하위)는 content://로 시작
+                // 누가(7.0)이상부터는 file://로 시작되는 Uri의 값을 다른 앱과 주고 받기가 불가능하여 content://로 변경
+                Uri providerURI = FileProvider.getUriForFile(getActivity().getApplicationContext(), "com.together.linkalk", photoFile);
+                mUri = providerURI;
+                Log.i("imageUri", mUri.toString());
+
+                // 인텐트에 전달할 때는 FileProvier의 Return값인 content://로만!!, providerURI의 값에 카메라 데이터를 넣어 보냄
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, providerURI);
+
+                // file provider permission denial 해결 부분, 패키지를 필요로 하는 모든 패키지에 권한 부여 해줌
+                List<ResolveInfo> resInfoList = getActivity().getApplicationContext().getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    getActivity().getApplicationContext().grantUriPermission(packageName, mUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+
+                startActivityForResult(takePictureIntent, CAMERA_CODE);
+            }
+        }
+
+    }
+
+    public void GetPicIntent(){
+        Intent pickPictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        pickPictureIntent.setType("image/*");
+        if (pickPictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(pickPictureIntent, GALLERY_CODE);
+        }
+    }
+
+    public void CropPic(Uri uri){
+        Intent cropPictureIntent = new Intent("com.android.camera.action.CROP");
+        cropPictureIntent.setDataAndType(uri, "image/*");
+        cropPictureIntent.putExtra("outputX", 640); // crop한 이미지의 x축 크기 (integer)
+        cropPictureIntent.putExtra("outputY", 480); // crop한 이미지의 y축 크기 (integer)
+        cropPictureIntent.putExtra("aspectX", 4); // crop 박스의 x축 비율 (integer)
+        cropPictureIntent.putExtra("aspectY", 3); // crop 박스의 y축 비율 (integer)
+        cropPictureIntent.putExtra("scale", true);
+        cropPictureIntent.putExtra("return-data", true);
+        if (cropPictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(cropPictureIntent, PICT_CROP_CODE);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK){
+            if(requestCode==CAMERA_CODE){
+                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                File file = new File(mCurrentPhotoPath);
+                Uri contentUri = Uri.fromFile(file);
+                mediaScanIntent.setData(contentUri);
+                getActivity().sendBroadcast(mediaScanIntent);
+
+                CropPic(contentUri);
+            } else if(requestCode==GALLERY_CODE){
+                CropPic(data.getData());
+            } else if(requestCode==PICT_CROP_CODE){
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                member_pic.setImageBitmap(imageBitmap);
+            }
+        }
+    }
 
     // 회원 정보 수정을 위해 서버에 등록된 나의 정보를 받아오는 Async
     class GetMyProfile extends AsyncTask<Void, Void, String> {

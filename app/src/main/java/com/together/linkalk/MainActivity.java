@@ -1,5 +1,6 @@
 package com.together.linkalk;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +34,7 @@ import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -119,7 +121,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        finish();
+        ActivityManager am = (ActivityManager) getApplicationContext().getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        String com = taskInfo.get(0).topActivity.getClassName();
+        Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+        if(com.equals("com.together.linkalk.MyFriendDetailProfile")
+                || com.equals("com.together.linkalk.NewFriendDetailProfile")
+                || com.equals("com.together.linkalk.InChattingActivity")
+                || com.equals("com.together.linkalk.MyProfileModify")){
+            finish();
+        }
     }
 
     @Override
