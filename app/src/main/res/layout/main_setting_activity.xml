@@ -33,7 +33,7 @@
                 android:layout_height="25dp"
                 android:background="@android:drawable/ic_menu_close_clear_cancel" />
         </LinearLayout>
-        <ImageView
+        <com.together.linkalk.FaceOverlayView
             android:id="@+id/member_pic"
             android:layout_width="280dp"
             android:layout_height="210dp"/>

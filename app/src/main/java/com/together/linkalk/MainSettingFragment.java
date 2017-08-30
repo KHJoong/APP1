@@ -80,7 +80,7 @@ public class MainSettingFragment extends Fragment {
     Button member_pic_camera;
     Button member_pic_gallery;
     Button member_pic_del;
-    ImageView member_pic;
+    FaceOverlayView member_pic;
 
     Button member_modify_button;
 
@@ -140,7 +140,7 @@ public class MainSettingFragment extends Fragment {
             }
         };
 
-        member_pic = (ImageView)layout.findViewById(R.id.member_pic);
+        member_pic = (FaceOverlayView)layout.findViewById(R.id.member_pic);
         member_modify_button = (Button)layout.findViewById(R.id.member_modify_button);
         member_modify_button.setOnClickListener(btnClickListener);
         member_pic_camera = (Button)layout.findViewById(R.id.member_pic_camera);
@@ -248,7 +248,7 @@ public class MainSettingFragment extends Fragment {
             } else if(requestCode==PICT_CROP_CODE){
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
-                member_pic.setImageBitmap(imageBitmap);
+                member_pic.setBitmap(imageBitmap);
             }
         }
     }
