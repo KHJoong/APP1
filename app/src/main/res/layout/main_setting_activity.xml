@@ -33,10 +33,18 @@
                 android:layout_height="25dp"
                 android:background="@android:drawable/ic_menu_close_clear_cancel" />
         </LinearLayout>
-        <com.together.linkalk.FaceOverlayView
-            android:id="@+id/member_pic"
+        <RelativeLayout
             android:layout_width="280dp"
-            android:layout_height="210dp"/>
+            android:layout_height="210dp">
+            <com.together.linkalk.FaceOverlayView
+                android:id="@+id/member_pic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <ImageView
+                android:id="@+id/member_pic2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </RelativeLayout>
     </LinearLayout>
 
     <Button

@@ -3,11 +3,14 @@ package com.together.linkalk;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -18,6 +21,8 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
 
+import java.io.ByteArrayOutputStream;
+
 /**
  * Created by kimhj on 2017-08-30.
  */
@@ -25,6 +30,7 @@ import com.google.android.gms.vision.face.Landmark;
 public class FaceOverlayView extends View {
     private Bitmap mBitmap;
     private SparseArray<Face> mFaces;
+    int count = 0;
 
     public FaceOverlayView(Context context) {
         this(context, null);
@@ -39,6 +45,7 @@ public class FaceOverlayView extends View {
     }
 
     public void setBitmap( Bitmap bitmap ) {
+        count = 1;
         mBitmap = bitmap;
         FaceDetector detector = new FaceDetector.Builder( getContext() )
                 .setTrackingEnabled(true)
@@ -61,7 +68,13 @@ public class FaceOverlayView extends View {
     protected void onDraw(Canvas canvas) {
 
         if((mBitmap!=null) && (mFaces.size()==0)){
-            drawBitmap(canvas);
+//            drawBitmap(canvas);
+            if(count == 1){
+                Intent intent = new Intent(getContext(), PhotoFilterActivity.class);
+                intent.putExtra("imageUri", getImageUri(getContext(), mBitmap).toString());
+                getContext().startActivity(intent);
+                count = 2;
+            }
         }
         if((mBitmap!=null) && (mFaces.size()!=0)){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -85,7 +98,6 @@ public class FaceOverlayView extends View {
             mBitmap = null;
             mFaces = null;
         }
-
         // drawFaceLandmarks(canvas, scale); 눈, 코, 입, 볼의 위치를 찾아서 초록 동그라미로 그려주는 메소드
         // drawFaceBox(canvas, scale); 얼굴을 찾아서 초록 네모로 표시해주는 메소드
 //        if ((mBitmap != null) && (mFaces != null)) {
@@ -94,6 +106,13 @@ public class FaceOverlayView extends View {
 //            drawFaceBox(canvas, scale);
 //
 //        }
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     private double drawBitmap(Canvas canvas) {

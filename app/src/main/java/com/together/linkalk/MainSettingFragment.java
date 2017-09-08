@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -64,6 +65,7 @@ import java.util.Date;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by kimhj on 2017-07-06.
@@ -81,6 +83,7 @@ public class MainSettingFragment extends Fragment {
     Button member_pic_gallery;
     Button member_pic_del;
     FaceOverlayView member_pic;
+    ImageView member_pic2;
 
     Button member_modify_button;
 
@@ -135,6 +138,33 @@ public class MainSettingFragment extends Fragment {
                         GetPicIntent();
                         break;
                     case R.id.member_pic_del:
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                        alertDialogBuilder
+                                .setTitle("사진 빼기")
+                                .setMessage("정말로 등록한 사진을 지우시겠습니까?")
+                                .setCancelable(true)
+                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        SharedPreferences sp = getActivity().getSharedPreferences("maintain", MODE_PRIVATE);
+                                        SharedPreferences.Editor sp_editor = sp.edit();
+                                        sp_editor.putString("picPath", null);
+                                        sp_editor.commit();
+                                        Handler ha = new Handler();
+                                        ha.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                member_pic2.setImageBitmap(null);
+                                            }
+                                        });
+                                        dialog.cancel();
+                                    }
+                                });
+                        // 다이얼로그 생성
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.setCanceledOnTouchOutside(true);
+                        // 다이얼로그 보여주기
+                        alertDialog.show();
                         break;
                 }
             }
@@ -149,9 +179,21 @@ public class MainSettingFragment extends Fragment {
         member_pic_gallery.setOnClickListener(btnClickListener);
         member_pic_del = (Button)layout.findViewById(R.id.member_pic_del);
         member_pic_del.setOnClickListener(btnClickListener);
+        member_pic2 = (ImageView)layout.findViewById(R.id.member_pic2);
 
         return layout;
     }   // onCreateView 끝
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sp = getActivity().getSharedPreferences("maintain", MODE_PRIVATE);
+        File imgFile = new  File(sp.getString("picPath", ""));
+        if(imgFile.exists()){
+            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            member_pic2.setImageBitmap(myBitmap);
+        }
+    }
 
     public File createImageFile() throws IOException {
         Log.i("createImageFile", "Call");

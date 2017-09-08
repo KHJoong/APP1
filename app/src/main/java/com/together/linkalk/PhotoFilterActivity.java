@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
@@ -44,11 +45,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PhotoFilterActivity extends Activity implements OnLongClickListener {
+public class PhotoFilterActivity extends Activity {
     private static final String TAG = "PhotoProcessingActivity";
-
-    public static final int REQUEST_CODE_SELECT_PHOTO = 1;
-    public static final int REQUEST_CODE_CAMERA = 2;
 
     private static final String SAVE_STATE_PATH = "com.together.linkalk.PhotoProcessing.mOriginalPhotoPath";
     private static final String SAVE_CURRENT_FILTER = "com.together.linkalk.PhotoProcessing.mCurrentFilter";
@@ -69,8 +67,6 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
     private static SavePhotoTask sSavePhotoTask;
 
     private ProgressDialog mProgressDialog = null;
-
-    private Vibrator mVibrator = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -95,16 +91,18 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
         findViewById(R.id.buttonFilter).setEnabled(false);
         findViewById(R.id.buttonSave).setEnabled(false);
 
-        ImageButton galleryButton = (ImageButton)findViewById(R.id.buttonGallery);
-        galleryButton.setOnLongClickListener(this);
         ImageButton filterButton = (ImageButton)findViewById(R.id.buttonFilter);
-        filterButton.setOnLongClickListener(this);
         filterButton.setEnabled(false);
         ImageButton saveButton = (ImageButton)findViewById(R.id.buttonSave);
-        saveButton.setOnLongClickListener(this);
         saveButton.setEnabled(false);
 
-        mVibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+        Intent i = getIntent();
+        Uri photoUri = Uri.parse(i.getStringExtra("imageUri").toString());
+        mImageView.setImageBitmap(null);
+        mOriginalPhotoPath = MediaUtils.getPath(this, photoUri);
+        loadPhoto(mOriginalPhotoPath);
+        mImageView.setImageBitmap(mBitmap);
+        saveToCache(mBitmap);
     }
 
     @Override
@@ -160,40 +158,14 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
         } else if (mIsEditListShowing) {
         } else {
             super.onBackPressed();
+            finish();
         }
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_SELECT_PHOTO && resultCode == RESULT_OK) {
-            if (mEditActions != null) {
-                mEditActions.clear();
-            }
-            Uri photoUri = data.getData();
-            mImageView.setImageBitmap(null);
-            mOriginalPhotoPath = MediaUtils.getPath(this, photoUri);
-            loadPhoto(mOriginalPhotoPath);
-            mImageView.setImageBitmap(mBitmap);
-            saveToCache(mBitmap);
-        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-            mImageView.setImageBitmap(null);
-            loadPhoto(mOriginalPhotoPath);
-            mImageView.setImageBitmap(mBitmap);
-            saveToCache(mBitmap);
-        }
-    }
 
     private void enableFilterEditAndSaveButtons() {
         findViewById(R.id.buttonFilter).setEnabled(true);
         findViewById(R.id.buttonSave).setEnabled(true);
-    }
-
-    public void onGalleryButtonClick(View v) {
-        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, REQUEST_CODE_SELECT_PHOTO);
     }
 
 
@@ -318,7 +290,7 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
 
     private String savePhoto(Bitmap bitmap) {
         File file = new File(mOriginalPhotoPath);
-        File saveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Lightbox/");
+        File saveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Linkalk/");
         saveDir.mkdir();
         String name = file.getName().substring(0, file.getName().lastIndexOf('.')) + "_";
         int count = 0;
@@ -405,25 +377,6 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
         }
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-        switch (view.getId()) {
-            case R.id.buttonGallery:
-                mVibrator.vibrate(40);
-                Toast.makeText(this, R.string.toast_hint_gallery, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.buttonFilter:
-                mVibrator.vibrate(40);
-                Toast.makeText(this, R.string.toast_hint_filter, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.buttonSave:
-                mVibrator.vibrate(40);
-                Toast.makeText(this, R.string.toast_hint_save, Toast.LENGTH_SHORT).show();
-                break;
-        }
-        return false;
     }
 
     private static class FilterListAdapter extends BaseAdapter {
@@ -584,8 +537,14 @@ public class PhotoFilterActivity extends Activity implements OnLongClickListener
         protected void onPostExecute(Void result) {
             PhotoFilterActivity activity = getActivity();
             if (activity != null) {
+                SharedPreferences sh = getActivity().getSharedPreferences("maintain", MODE_PRIVATE);
+                SharedPreferences.Editor sh_editor = sh.edit();
+                sh_editor.putString("picPath", mSavePath);
+                sh_editor.commit();
+
                 activity.hideProgressDialog();
                 Toast.makeText(activity, activity.getString(R.string.saved_photo_toast_message, mSavePath), Toast.LENGTH_LONG).show();
+                getActivity().finish();
             }
         }
     }

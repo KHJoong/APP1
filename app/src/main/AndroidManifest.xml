@@ -144,6 +144,14 @@
         </activity>
         <!--Chatting activity end-->
 
+        <!--PhotoFilter activity start-->
+        <activity
+            android:name=".PhotoFilterActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+
+        </activity>
+        <!--PhotoFilter activity end-->
+
         <!--Google Firebase (To FCM) start-->
         <service
             android:name=".FirebaseMessagingService">
