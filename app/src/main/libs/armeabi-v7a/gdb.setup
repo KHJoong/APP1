@@ -1,0 +1,2 @@
+set solib-search-path ./obj/local/armeabi-v7a
+directory C:/Users/kimhj/AppData/Local/Android/sdk/ndk-bundle/build//../sysroot jni C:/Users/kimhj/AppData/Local/Android/sdk/ndk-bundle/build//../sources/cxx-stl/system
