@@ -543,7 +543,6 @@ public class PhotoFilterActivity extends Activity {
                 sh_editor.commit();
 
                 activity.hideProgressDialog();
-                Toast.makeText(activity, activity.getString(R.string.saved_photo_toast_message, mSavePath), Toast.LENGTH_LONG).show();
                 getActivity().finish();
             }
         }

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/black"
+    android:background="@android:color/white"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -46,7 +46,7 @@
             android:hapticFeedbackEnabled="true"
             android:longClickable="true"
             android:onClick="onFilterButtonClick"
-            android:src="@android:drawable/ic_menu_preferences" />
+            android:src="@drawable/camerafilter" />
 
         <ImageButton
             android:id="@+id/buttonSave"
@@ -56,7 +56,7 @@
             android:hapticFeedbackEnabled="true"
             android:longClickable="true"
             android:onClick="onSaveButtonClick"
-            android:src="@android:drawable/ic_menu_save" />
+            android:src="@drawable/okmark" />
     </LinearLayout>
 
 </RelativeLayout>
