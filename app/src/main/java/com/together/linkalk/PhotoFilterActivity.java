@@ -5,11 +5,17 @@ package com.together.linkalk;
  */
 
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -24,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -307,6 +314,9 @@ public class PhotoFilterActivity extends Activity {
             fos = new FileOutputStream(saveFile);
             bitmap.compress(CompressFormat.JPEG, 95, fos);
 
+            UploadFile  uploadFile = new UploadFile(getApplicationContext(), saveFile.getAbsolutePath());
+            uploadFile.execute("http://www.o-ddang.com/linkalk/upLoadImageFile.php");
+
             return saveFile.getAbsolutePath();
         } catch (FileNotFoundException e) {
             Log.w(TAG, e);
@@ -320,6 +330,8 @@ public class PhotoFilterActivity extends Activity {
                 }
             }
         }
+
+
 
         return "";
     }
@@ -547,4 +559,126 @@ public class PhotoFilterActivity extends Activity {
             }
         }
     }
+
+
+    private class UploadFile extends AsyncTask<String, String, String>{
+        Context mContext;
+        String fileName;
+
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+
+        String lineEnd = "\r\n";
+        String twoHypens = "--";
+        String boundary = "*****";
+
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1024;
+        File sourceFile;
+        int serverResponseCode;
+        String TAG = "FileUpLoad";
+
+        public UploadFile(Context context, String uploadFilePath){
+            mContext = context;
+            fileName = uploadFilePath;
+            sourceFile = new File(uploadFilePath);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            // 서버에서 친구 목록을 받기 위해 요청하는 부분
+            SharedPreferences sharedPreferences = getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            String sessionID = sharedPreferences.getString("sessionID", "");
+
+            if(!sourceFile.isFile()){
+                Log.d(TAG, "sourceFile("+fileName+") is not a File");
+                return null;
+            } else {
+                Log.d(TAG, "sourceFile("+fileName+") is a File");
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                    URL url = new URL(params[0]);
+
+                    conn = (HttpURLConnection)url.openConnection();
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setUseCaches(false);
+                    conn.setRequestMethod("POST");
+
+                    conn.setInstanceFollowRedirects( false );
+                    if(!TextUtils.isEmpty(sessionID)) {
+                        conn.setRequestProperty( "cookie", sessionID) ;
+                    }
+
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+                    conn.setRequestProperty("uploaded_file", fileName);
+
+                    dos = new DataOutputStream(conn.getOutputStream());
+
+                    dos.writeBytes(twoHypens+boundary+lineEnd);
+                    dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_image\""+lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes("uploaded_img");
+                    dos.writeBytes(lineEnd);
+
+                    dos.writeBytes(twoHypens+boundary+lineEnd);
+                    dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\"; filename=\""+fileName+"\""+lineEnd);
+                    dos.writeBytes(lineEnd);
+
+                    bytesAvailable = fileInputStream.available();
+
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    buffer = new byte[bufferSize];
+
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                    while (bytesRead > 0) {
+                        dos.write(buffer, 0, bufferSize);
+                        bytesAvailable = fileInputStream.available();
+                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                    }
+
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHypens+boundary+lineEnd);
+
+                    serverResponseCode = conn.getResponseCode();
+                    String serverResponseMessage = conn.getResponseMessage();
+
+                    Log.d(TAG, "[UploadImageToServer] Http Response is : "+ serverResponseMessage + ": "+ serverResponseCode);
+
+                    if(serverResponseCode == 200){
+
+                    }
+
+                    BufferedReader rd = null;
+
+                    rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                    String line = null;
+                    while((line = rd.readLine()) != null){
+                        Log.i("Upload state", line);
+                    }
+
+                    fileInputStream.close();
+                    dos.flush();
+                    dos.close();
+
+                } catch (Exception e){
+                    Log.d(TAG + "Error ", e.toString());
+                    System.out.println(e.toString());
+                }
+                return "success";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+    }
+
+
 }
