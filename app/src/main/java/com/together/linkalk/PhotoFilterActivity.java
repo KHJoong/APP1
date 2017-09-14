@@ -659,7 +659,8 @@ public class PhotoFilterActivity extends Activity {
                     rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
                     String line = null;
                     while((line = rd.readLine()) != null){
-                        Log.i("Upload state", line);
+                        Log.d("Upload state", line);
+                        System.out.println("Upload state : " + line);
                     }
 
                     fileInputStream.close();

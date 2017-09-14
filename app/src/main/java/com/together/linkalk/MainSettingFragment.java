@@ -1,11 +1,6 @@
 package com.together.linkalk;
 
-import android.*;
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,17 +10,14 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,36 +27,28 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -153,15 +137,21 @@ public class MainSettingFragment extends Fragment {
                                     .setCancelable(true)
                                     .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
+                                            DeleteProfilePic dpp = new DeleteProfilePic();
+                                            dpp.execute();
+
                                             sp_editor.putString("picPath", null);
                                             sp_editor.commit();
                                             Handler ha = new Handler();
                                             ha.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    member_pic2.setImageBitmap(null);
+                                                    BitmapDrawable drawable = (BitmapDrawable)getResources().getDrawable(R.drawable.baseprofileimg);
+                                                    Bitmap bitmap = drawable.getBitmap();
+                                                    member_pic2.setImageBitmap(bitmap);
                                                 }
                                             });
+
                                             member_pic_del.setVisibility(View.GONE);
                                             dialog.cancel();
                                         }
@@ -204,6 +194,10 @@ public class MainSettingFragment extends Fragment {
 //            Glide.with(this).load(u).apply(RequestOptions.circleCropTransform()).into(member_pic2);
 //            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 //            member_pic2.setImageBitmap(myBitmap);
+        } else {
+            BitmapDrawable drawable = (BitmapDrawable)getResources().getDrawable(R.drawable.baseprofileimg);
+            Bitmap bitmap = drawable.getBitmap();
+            member_pic2.setImageBitmap(bitmap);
         }
     }
 
@@ -532,6 +526,66 @@ public class MainSettingFragment extends Fragment {
                 e.printStackTrace();
             }
 
+        }
+    }
+
+    class DeleteProfilePic extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            // 서버에서 추천 친구 목록을 받기 위해 요청하는 부분
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            String sessionID = sharedPreferences.getString("sessionID", "");
+
+            try {
+                URL url = new URL("http://www.o-ddang.com/linkalk/deleteImageFile.php");
+                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setDefaultUseCaches(false);
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("accept-charset", "UTF-8");
+                conn.setRequestProperty("content-type", "application/x-www-form-urlencoded; charset=utf-8");
+
+                conn.setInstanceFollowRedirects( false );
+                if(!TextUtils.isEmpty(sessionID)) {
+                    conn.setRequestProperty( "cookie", sessionID) ;
+                }
+
+                String signal = URLEncoder.encode("signal", "UTF-8")+"="+URLEncoder.encode("delete", "UTF-8");
+                OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+                osw.write(signal);
+                osw.flush();
+                osw.close();
+
+                int serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                if(serverResponseCode == 200){
+
+                }
+
+                BufferedReader rd = null;
+
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                String line = null;
+                while((line = rd.readLine()) != null){
+                    Log.d("delete state", line);
+                    System.out.println("delete state : " + line);
+                }
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
         }
     }
 
