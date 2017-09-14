@@ -1,5 +1,6 @@
 package com.together.linkalk;
 
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -7,6 +8,7 @@ import android.widget.TextView;
  */
 
 public class ViewHolder {
+    ImageView profilepic;
     TextView nickname;
     TextView language;
     TextView lastTime;

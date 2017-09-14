@@ -51,6 +51,7 @@ public class MainFriendFragment extends Fragment {
     String hobby3;
     String hobby4;
     String hobby5;
+    String imgpath;
 
 
     public MainFriendFragment() {
@@ -117,8 +118,9 @@ public class MainFriendFragment extends Fragment {
                     hobby3 = friendObject.getString("hobby3");
                     hobby4 = friendObject.getString("hobby4");
                     hobby5 = friendObject.getString("hobby5");
+                    imgpath = friendObject.getString("imgpath");
 
-                    Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5);
+                    Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5, imgpath);
                     mfAdapter.addItem(member);
                     Log.i("myfriendinfo", String.valueOf(mfAdapter.mfItem.get(i).getNickname()));
                 } catch (JSONException e1) {

@@ -67,6 +67,7 @@ public class NewFriendDetailProfile extends AppCompatActivity {
     String mem_hobby3;
     String mem_hobby4;
     String mem_hobby5;
+    String mem_imgpath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,8 @@ public class NewFriendDetailProfile extends AppCompatActivity {
             mem_hobby3 = object.getString("hobby3");
             mem_hobby4 = object.getString("hobby4");
             mem_hobby5 = object.getString("hobby5");
+            mem_imgpath = object.getString("imgpath");
+
             if(!TextUtils.isEmpty(mem_nickname)){
                 nickname.setText(mem_nickname);
             }
@@ -303,6 +306,7 @@ public class NewFriendDetailProfile extends AppCompatActivity {
                     friendObject.put("hobby3", mem_hobby3);
                     friendObject.put("hobby4", mem_hobby4);
                     friendObject.put("hobby5", mem_hobby5);
+                    friendObject.put("imgpath", mem_imgpath);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -44,6 +44,7 @@ public class DialogInChattingActivity extends Activity {
     String hobby3;
     String hobby4;
     String hobby5;
+    String imgpath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,9 @@ public class DialogInChattingActivity extends Activity {
                         hobby3 = friendObject.getString("hobby3");
                         hobby4 = friendObject.getString("hobby4");
                         hobby5 = friendObject.getString("hobby5");
+                        imgpath = friendObject.getString("imgpath");
 
-                        Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5);
+                        Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5, imgpath);
                         dcAdapter.addItem(member);
                     }
                 } catch (JSONException e1) {

@@ -15,10 +15,11 @@ public class Member {
     String hobby3;
     String hobby4;
     String hobby5;
+    String imgpath;
 
     boolean checked;
 
-    Member(String nick, String loc, String lan, String time, String intro, String ho1, String ho2, String ho3, String ho4, String ho5){
+    Member(String nick, String loc, String lan, String time, String intro, String ho1, String ho2, String ho3, String ho4, String ho5, String pa){
         nickname = nick;
         location = loc;
         language = lan;
@@ -29,6 +30,7 @@ public class Member {
         hobby3 = ho3;
         hobby4 = ho4;
         hobby5 = ho5;
+        imgpath = pa;
     }
 
     public String getNickname(){
@@ -69,6 +71,10 @@ public class Member {
 
     public String getHobby5(){
         return hobby5;
+    }
+
+    public String getImgpath(){
+        return imgpath;
     }
 
     public boolean getChecked() {

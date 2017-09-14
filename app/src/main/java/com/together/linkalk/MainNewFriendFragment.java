@@ -163,7 +163,8 @@ public class MainNewFriendFragment extends Fragment {
                         String hobby3 = object.getString("hobby3");
                         String hobby4 = object.getString("hobby4");
                         String hobby5 = object.getString("hobby5");
-                        Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5);
+                        String imgpath = object.getString("imgpath");
+                        Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5, imgpath);
                         nmAdapter.addItem(member);
                     } catch (JSONException e) {
                         break;
@@ -208,6 +209,7 @@ public class MainNewFriendFragment extends Fragment {
         String hobby3;
         String hobby4;
         String hobby5;
+        String imgpath;
 
         @Override
         protected void onPreExecute() {
@@ -386,8 +388,11 @@ public class MainNewFriendFragment extends Fragment {
                     if(!TextUtils.isEmpty(hobby5 = obj.getString("hobby5"))){
                         hobby5 = obj.getString("hobby5");
                     }
+                    if(!TextUtils.isEmpty(imgpath = obj.getString("imgpath"))){
+                        imgpath = obj.getString("imgpath");
+                    }
 
-                    Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5);
+                    Member member = new Member(nickname, location, language, lasttime, introduce, hobby1, hobby2, hobby3, hobby4, hobby5, imgpath);
                     nmAdapter.addItem(member);
                     newMemberEditor.putString(String.valueOf(n), s_obj);
                 }
