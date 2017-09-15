@@ -33,6 +33,12 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_my_pic"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="4dp"/>
         <TextView
             android:id="@+id/tv_my_communi"
             android:layout_width="wrap_content"
@@ -61,3 +67,66 @@
     </RelativeLayout>
 
 </LinearLayout>
+
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:orientation="vertical" android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content">-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/tv_date"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:gravity="center"-->
+        <!--android:padding="3dp"-->
+        <!--android:background="#969696"-->
+        <!--android:textColor="#ffffff"-->
+        <!--android:layout_marginRight="10dp"-->
+        <!--android:layout_marginLeft="10dp"-->
+        <!--android:layout_marginTop="7dp"-->
+        <!--android:layout_marginBottom="7dp"/>-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/tv_my_nick"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="nickname"-->
+        <!--android:layout_gravity="right"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:textSize="18sp"-->
+        <!--android:textColor="#ababab"-->
+        <!--android:layout_marginRight="15dp"-->
+        <!--android:layout_marginLeft="15dp"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:layout_marginBottom="4dp"/>-->
+
+    <!--<RelativeLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content">-->
+        <!--<TextView-->
+            <!--android:id="@+id/tv_my_communi"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:background="@drawable/chat_rounded_corner"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:paddingTop="8dp"-->
+            <!--android:paddingBottom="10dp"-->
+            <!--android:paddingRight="18dp"-->
+            <!--android:paddingLeft="18dp"-->
+            <!--android:text="test"-->
+            <!--android:textColor="#000000"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:maxWidth="230dp"-->
+            <!--android:focusable="false"-->
+            <!--android:focusableInTouchMode="false"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/tv_my_time"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toLeftOf="@id/tv_my_communi"-->
+            <!--android:layout_marginTop="9dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:textColor="#ababab"/>-->
+    <!--</RelativeLayout>-->
+
+<!--</LinearLayout>-->

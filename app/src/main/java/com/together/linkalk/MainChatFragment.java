@@ -255,7 +255,7 @@ public class MainChatFragment extends Fragment {
                             roomName = roomName.substring(0, 20) + "...";
                         }
 
-                        String selectQuery2 = "SELECT * FROM chat_msg WHERE roomNo='"+ roomNo +"';";
+                        String selectQuery2 = "SELECT * FROM chat_msg WHERE roomNo='"+ roomNo +"'";
                         Cursor c2 = db.rawQuery(selectQuery2, null);
                         if(c2.getCount()!=0){
                             int lastMsgNum = c2.getCount();

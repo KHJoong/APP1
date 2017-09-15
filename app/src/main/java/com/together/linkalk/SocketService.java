@@ -300,7 +300,7 @@ public class SocketService extends Service{
             MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
             mdbHelper.insertRoom(roomNo, relation);
 
-            msgDBHelper.insertMsg(sender, relation, msg, post_msg, time, 1, 1);
+            msgDBHelper.insertMsg(sender, relation, relation, msg, post_msg, time, 1, 1);
 
             // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
             // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
@@ -1272,7 +1272,7 @@ public class SocketService extends Service{
                 GetChatRoom gcr = new GetChatRoom(mContext);
                 gcr.execute(jsonObject.toString());
             } else {
-                msgDBHelper.insertMsg(sender, receive, beforemsg, post_msg, time, 1, 1);
+                msgDBHelper.insertMsg(sender, receive, receiver2,beforemsg, post_msg, time, 1, 1);
 
                 // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
                 // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
@@ -1301,7 +1301,7 @@ public class SocketService extends Service{
                 List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
                 Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
                 // 방 번호 찾는 쿼리
-                String query = "SELECT roomNo FROM chat_room WHERE relation='"+receive+"'";
+                String query = "SELECT roomNo FROM chat_room WHERE relation='"+receive+"' OR relation='"+receiver2+"'";
                 db = msgDBHelper.getReadableDatabase();
                 c = db.rawQuery(query, null);
                 int rn = 0;

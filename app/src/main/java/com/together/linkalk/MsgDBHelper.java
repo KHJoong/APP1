@@ -48,11 +48,11 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         }
     }
 
-    public void insertMsg(String sender, String receiver, String msg, String transmsg, String time, int readed, int sync){
+    public void insertMsg(String sender, String receiver, String receiver2, String msg, String transmsg, String time, int readed, int sync){
         SQLiteDatabase db = getWritableDatabase();
 
         // 어떤 방인지, 방 번호 찾는 쿼리
-        String query = "SELECT roomNo, ordered FROM chat_room WHERE relation='"+receiver+"'";
+        String query = "SELECT roomNo, ordered FROM chat_room WHERE relation='"+receiver+"' OR relation='"+receiver2+"'";
         Cursor cursor = db.rawQuery(query, null);
         int rn = 0;
         int or = 0;

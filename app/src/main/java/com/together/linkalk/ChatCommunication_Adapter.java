@@ -4,13 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -78,6 +83,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             view = ((LayoutInflater)ccaContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.chatcommuni_me_frame, null);
             viewHolder = new ViewHolderChat();
 
+            viewHolder.pic = (ImageView)view.findViewById(R.id.iv_my_pic);
             viewHolder.sender = (TextView)view.findViewById(R.id.tv_my_nick);
             viewHolder.msg = (TextView)view.findViewById(R.id.tv_my_communi);
             viewHolder.time = (TextView)view.findViewById(R.id.tv_my_time);
@@ -125,6 +131,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
         // 채팅방 메시지 띄워주는 부분
         if(sender.equals(nickname)){
+            viewHolder.pic.setVisibility(View.GONE);
             viewHolder.sender.setText(ccaItem.get(position).getSender());
             viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
             viewHolder.time.setText(savedHour + " : " + savedMin);
@@ -144,6 +151,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
 
         }  else if(!sender.equals(nickname)){
+            viewHolder.pic.setVisibility(View.GONE);
             viewHolder.sender.setText(ccaItem.get(position).getSender());
             if(ccaItem.get(position).getIsTrans()){
                 viewHolder.msg.setText(ccaItem.get(position).getTransmsg());

@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -186,6 +187,7 @@ public class InChattingActivity extends AppCompatActivity {
         }
 
         other_nickname = "";
+        Collections.sort(other_nickname_array);
         for(int i=0; i<other_nickname_array.size(); i++){
             if(other_nickname.equals("")){
                 other_nickname = other_nickname + other_nickname_array.get(i);

@@ -1,5 +1,6 @@
 package com.together.linkalk;
 
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -7,6 +8,7 @@ import android.widget.TextView;
  */
 
 public class ViewHolderChat {
+    ImageView pic;
     TextView sender;
     TextView msg;
     TextView time;
