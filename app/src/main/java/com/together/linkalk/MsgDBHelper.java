@@ -1,12 +1,16 @@
 package com.together.linkalk;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.widget.Adapter;
 import android.widget.ListView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -16,11 +20,13 @@ public class MsgDBHelper extends SQLiteOpenHelper{
 
     public static final String DB_NAME = "Chat.db";
     public static final int DB_VERSION = 1;
+    Context mContext;
 
     Handler handler;
 
     public MsgDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        mContext = context;
     }
 
     @Override
@@ -131,7 +137,31 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 String msg = c.getString(3);
                 String transmsg = c.getString(4);
                 String time = c.getString(5);
-                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1);
+
+                String nick="";
+                String imgpath="";
+                SharedPreferences mainShared = mContext.getSharedPreferences("maintain", Context.MODE_PRIVATE);
+                String my_nickname = mainShared.getString("nickname", "");
+                if(!sender.equals(my_nickname)){
+                    for(int i=0; ; i++) {
+                        SharedPreferences myFriendShared = mContext.getSharedPreferences("MyFriend", Context.MODE_PRIVATE);
+                        if (myFriendShared.contains(String.valueOf(i))) {
+                            String myFriend_tmp = myFriendShared.getString(String.valueOf(i), "");
+                            try {
+                                JSONObject friendObject = new JSONObject(myFriend_tmp);
+                                nick = friendObject.getString("nickname");
+                                if(sender.equals(nick)){
+                                    imgpath = friendObject.getString("imgpath");
+                                    break;
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);
                 ad.add(chat);
                 db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
             }while(c.moveToNext());
@@ -164,7 +194,31 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 String msg = c.getString(3);
                 String transmsg = c.getString(4);
                 String time = c.getString(5);
-                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1);
+
+                String nick="";
+                String imgpath="";
+                SharedPreferences mainShared = mContext.getSharedPreferences("maintain", Context.MODE_PRIVATE);
+                String my_nickname = mainShared.getString("nickname", "");
+                if(!sender.equals(my_nickname)){
+                    for(int i=0; ; i++) {
+                        SharedPreferences myFriendShared = mContext.getSharedPreferences("MyFriend", Context.MODE_PRIVATE);
+                        if (myFriendShared.contains(String.valueOf(i))) {
+                            String myFriend_tmp = myFriendShared.getString(String.valueOf(i), "");
+                            try {
+                                JSONObject friendObject = new JSONObject(myFriend_tmp);
+                                nick = friendObject.getString("nickname");
+                                if(sender.equals(nick)){
+                                    imgpath = friendObject.getString("imgpath");
+                                    break;
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);
                 ad.addItem(chat);
                 db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
             }while(c.moveToNext());

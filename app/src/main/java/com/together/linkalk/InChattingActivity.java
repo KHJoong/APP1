@@ -444,9 +444,35 @@ public class InChattingActivity extends AppCompatActivity {
                                         final String msg = cursor.getString(3);
                                         final String transmsg = cursor.getString(4);
                                         final String time = cursor.getString(5);
-                                        Chat chat = new Chat(sender, other_nickname, msg, transmsg, time, 1);
+
+                                        String nick="";
+                                        String imgpath="";
+                                        if(!sender.equals(my_nickname)){
+                                            for(int i=0; ; i++) {
+                                                SharedPreferences myFriendShared = getSharedPreferences("MyFriend", Context.MODE_PRIVATE);
+                                                if (myFriendShared.contains(String.valueOf(i))) {
+                                                    String myFriend_tmp = myFriendShared.getString(String.valueOf(i), "");
+                                                    try {
+                                                        JSONObject friendObject = new JSONObject(myFriend_tmp);
+                                                        nick = friendObject.getString("nickname");
+                                                        if(sender.equals(nick)){
+                                                            imgpath = friendObject.getString("imgpath");
+                                                            break;
+                                                        }
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Chat chat = new Chat(sender, other_nickname, msg, transmsg, time, 1, imgpath);
                                         ccAdapter.add(chat);
                                         ct = ct+1;
+
+
+//                                        Chat chat = new Chat(sender, other_nickname, msg, transmsg, time, 1);
+//                                        ccAdapter.add(chat);
+//                                        ct = ct+1;
                                     }
                                     ccAdapter.notifyDataSetChanged();
                                     int set = ct + firstVisibleItem;
