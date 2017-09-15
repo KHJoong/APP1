@@ -279,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
         String hobby3;
         String hobby4;
         String hobby5;
+        String imgpath;
 
         @Override
         protected String doInBackground(Void... params) {
@@ -391,6 +392,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if(!TextUtils.isEmpty(hobby5 = obj.getString("hobby5"))){
                             hobby5 = obj.getString("hobby5");
+                        }
+                        if(!TextUtils.isEmpty(imgpath = obj.getString("imgpath"))){
+                            imgpath = obj.getString("imgpath");
                         }
                         myFriendEditor.putString(String.valueOf(n), s_obj);
                     }
