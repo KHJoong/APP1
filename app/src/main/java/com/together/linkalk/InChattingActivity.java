@@ -96,7 +96,7 @@ public class InChattingActivity extends AppCompatActivity {
         if((intent.getIntExtra("comment", 0) ==1) && (other_nickname_array.size()>2)){
             for(int i=0; i<other_nickname_array.size(); i++) {
                 if(!my_nickname.equals(other_nickname_array.get(i))){
-                    if(i==0){
+                    if(i==0 || TextUtils.isEmpty(comment)){
                         comment = other_nickname_array.get(i);
                     } else if((i <= (other_nickname_array.size()-1)) && (i != 0 )){
                         comment = comment + ", " + other_nickname_array.get(i);
@@ -171,7 +171,7 @@ public class InChattingActivity extends AppCompatActivity {
             String st_invited = "";
             for(int i=0; i<other_nickname_array.size(); i++) {
                 if(!my_nickname.equals(other_nickname_array.get(i))){
-                    if(i==0){
+                    if(i==0 || TextUtils.isEmpty(st_invited)){
                         st_invited = other_nickname_array.get(i);
                     } else if((i <= (other_nickname_array.size()-1)) && (i != 0 )){
                         st_invited = st_invited + ", " + other_nickname_array.get(i);

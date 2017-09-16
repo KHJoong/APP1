@@ -131,7 +131,8 @@
 
         <!--Chatting activity start-->
         <activity
-            android:name=".InChattingActivity">
+            android:name=".InChattingActivity"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
         <!--Chatting activity end-->

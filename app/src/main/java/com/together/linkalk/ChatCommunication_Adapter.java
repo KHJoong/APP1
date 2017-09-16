@@ -151,6 +151,26 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
 
         }  else if(!sender.equals(nickname)){
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            params.width=90;
+            params.height=90;
+            params.leftMargin = 10;
+            viewHolder.pic.setLayoutParams(params);
+            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
+            params.leftMargin = 10;
+            viewHolder.msg.setLayoutParams(params);
+
+            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.msg.getId());
+            params.leftMargin = 15;
+            viewHolder.time.setLayoutParams(params);
+            viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
+
+            viewHolder.sender.setGravity(Gravity.LEFT);
+
             viewHolder.pic.setVisibility(View.VISIBLE);
             String path = ccaItem.get(position).getPath();
             Uri uri = Uri.parse("http://www.o-ddang.com/linkalk/"+path);
@@ -163,30 +183,6 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             }
             viewHolder.time.setText(savedHour + " : " + savedMin);
             viewHolder.msg.setBackgroundResource(R.drawable.other);
-
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.msg.getId());
-            params.leftMargin = 15;
-            viewHolder.time.setLayoutParams(params);
-            viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
-
-            viewHolder.sender.setGravity(Gravity.LEFT);
-
-            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            params.leftMargin = 10;
-            viewHolder.pic.setLayoutParams(params);
-            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
-            params.leftMargin = 10;
-            viewHolder.msg.setLayoutParams(params);
-
-//            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-//            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-//            params.leftMargin = 40;
-//            viewHolder.msg.setLayoutParams(params);
-
         }
 
         return view;
