@@ -36,7 +36,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -110,6 +115,10 @@ public class InChattingActivity extends AppCompatActivity {
             tvComment.setVisibility(View.VISIBLE);
             tvComment.setText(comment);
         }
+
+        // 친구 아닌 사람의 프로필 사진 업데이트
+        NotFriendPicUpdate nfpu = new NotFriendPicUpdate(getApplicationContext(), other_nickname_array);
+        nfpu.start();
 
         for(int i=0; i<other_nickname_array.size(); i++){
             if(!other_nickname_array.get(i).equals(my_nickname)){
@@ -487,6 +496,103 @@ public class InChattingActivity extends AppCompatActivity {
                     });
                 }
             });
+        }
+    }
+
+    // 친구 아닌 애들 프사 업뎃됬는지 다시 받아오기
+    class NotFriendPicUpdate extends Thread{
+        Context mContext;
+        ArrayList<String> other_nickname_array;
+        ArrayList<String> tmp_nickname_array;
+        String send;
+        String getdata;
+
+        NotFriendPicUpdate(Context con, ArrayList<String> other_nick_array){
+            mContext = con;
+            other_nickname_array = other_nick_array;
+            tmp_nickname_array = new ArrayList<String>();
+            send = "";
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            SharedPreferences shPreferences = mContext.getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+            for(int i=0; i<other_nickname_array.size(); i++){
+                if(!TextUtils.isEmpty(shPreferences.getString(other_nickname_array.get(i), ""))){
+                    if(TextUtils.isEmpty(send)){
+                        send = other_nickname_array.get(i);
+                        tmp_nickname_array.add(other_nickname_array.get(i));
+                    } else {
+                        send = send + other_nickname_array.get(i);
+                        tmp_nickname_array.add(other_nickname_array.get(i));
+                    }
+                }
+            }
+
+            if(!TextUtils.isEmpty(send)){
+                try {
+
+                    SharedPreferences sharedPreferences = mContext.getSharedPreferences("maintain", Context.MODE_PRIVATE);
+                    String sessionID = sharedPreferences.getString("sessionID", "");
+
+                    URL url = new URL("http://www.o-ddang.com/linkalk/updateNotFriendPic.php");
+                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+                    conn.setReadTimeout(10000);
+                    conn.setConnectTimeout(15000);
+                    conn.setDefaultUseCaches(false);
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("accept-charset", "UTF-8");
+                    conn.setRequestProperty("content-type", "application/x-www-form-urlencoded; charset=utf-8");
+
+                    conn.setInstanceFollowRedirects( false );
+                    if(!TextUtils.isEmpty(sessionID)) {
+                        conn.setRequestProperty( "cookie", sessionID) ;
+                    }
+
+                    String signal = URLEncoder.encode("nickname", "UTF-8")+"="+URLEncoder.encode(send, "UTF-8");
+                    OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+                    osw.write(signal);
+                    osw.flush();
+                    osw.close();
+
+                    int serverResponseCode = conn.getResponseCode();
+                    String serverResponseMessage = conn.getResponseMessage();
+
+                    if(serverResponseCode == 200){
+
+                    }
+
+                    BufferedReader rd = null;
+
+                    rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while((line = rd.readLine()) != null){
+                        sb.append(line);
+                    }
+                    rd.close();
+                    getdata = sb.toString().trim();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    JSONObject ob = new JSONObject(getdata);
+                    SharedPreferences.Editor ed = shPreferences.edit();
+                    for(int i=0; i<tmp_nickname_array.size(); i++){
+                        ed.putString(tmp_nickname_array.get(i), ob.getString(tmp_nickname_array.get(i)));
+                    }
+                    ed.commit();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

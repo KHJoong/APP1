@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.widget.Adapter;
 import android.widget.ListView;
 
@@ -157,8 +158,15 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                        } else {
+                            break;
                         }
                     }
+                }
+
+                if(TextUtils.isEmpty(imgpath)){
+                    SharedPreferences sp = mContext.getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+                    imgpath = sp.getString(sender, "");
                 }
 
                 Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);
@@ -214,8 +222,15 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                        } else {
+                            break;
                         }
                     }
+                }
+
+                if(TextUtils.isEmpty(imgpath)){
+                    SharedPreferences sp = mContext.getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+                    imgpath = sp.getString(sender, "");
                 }
 
                 Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);

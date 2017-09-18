@@ -529,11 +529,11 @@ public class MainSettingFragment extends Fragment {
         }
     }
 
+    // 등록된 프로필 사진을 지우는 어싱크
     class DeleteProfilePic extends AsyncTask<Void, Void, Void>{
 
         @Override
         protected Void doInBackground(Void... params) {
-            // 서버에서 추천 친구 목록을 받기 위해 요청하는 부분
             SharedPreferences sharedPreferences = getActivity().getSharedPreferences("maintain", Context.MODE_PRIVATE);
             String sessionID = sharedPreferences.getString("sessionID", "");
 

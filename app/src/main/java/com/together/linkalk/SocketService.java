@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.gms.vision.text.Text;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -37,6 +39,7 @@ import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -189,6 +192,9 @@ public class SocketService extends Service{
                                     e.printStackTrace();
                                 }
 
+                                // 친구 아닌사람이 보낸 메시지면 사진 가져오는 async
+                                GetNotFriendPic gnfp = new GetNotFriendPic(getApplicationContext());
+                                gnfp.execute(sender);
 
                                 returnTransMsg rtm = new returnTransMsg(mContext, sender, receiver, msg, lan);
                                 rtm.execute();
@@ -669,6 +675,10 @@ public class SocketService extends Service{
                         receiver = "";
                         receiver2 = "";
                         receiver_array = new ArrayList<String>();
+
+                        // 친구 아닌사람이 보낸 메시지면 사진 가져오는 async
+                        GetNotFriendPic gnfp = new GetNotFriendPic(getApplicationContext());
+                        gnfp.execute(sender);
 
                         JSONArray ar = obj3.getJSONArray("receiver");
                         for(int i=0; i<ar.length(); i++){
@@ -1330,4 +1340,119 @@ public class SocketService extends Service{
         }
     }   // 상대방이 먼저 대화 건 채팅방 생성 Asynctask
 
+    // 친구 아닌 사람이 보낸 메시지를 받으면 그 사람의 프로필 사진을 가져오는 어싱크
+    class GetNotFriendPic extends AsyncTask<String, Void, String>{
+        Context mContext;
+        String senderNickname;
+
+        GetNotFriendPic(Context context){
+            mContext = context;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            senderNickname = params[0];
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences("maintain", Context.MODE_PRIVATE);
+            String sessionID = sharedPreferences.getString("sessionID", "");
+            SharedPreferences shPreferences = mContext.getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+
+            if(!my_nickname.equals(senderNickname) && TextUtils.isEmpty(shPreferences.getString(senderNickname, ""))){
+                SharedPreferences sp = mContext.getSharedPreferences("MyFriend", MODE_PRIVATE);
+                int mfCount = 0;
+                int difCount = 0;
+                for(int i=0; ; i++){
+                    if(sp.contains(String.valueOf(i))){
+                        mfCount++;
+                        try {
+                            JSONObject ob = new JSONObject(sp.getString(String.valueOf(i), ""));
+                            String nic = ob.getString("nickname");
+                            if(nic.equals(senderNickname)){
+                                break;
+                            } else {
+                              difCount++;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                if(mfCount==difCount){
+                    try {
+                        URL url = new URL("http://www.o-ddang.com/linkalk/getNotFriendPic.php");
+                        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+                        conn.setReadTimeout(10000);
+                        conn.setConnectTimeout(15000);
+                        conn.setDefaultUseCaches(false);
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("accept-charset", "UTF-8");
+                        conn.setRequestProperty("content-type", "application/x-www-form-urlencoded; charset=utf-8");
+
+                        conn.setInstanceFollowRedirects( false );
+                        if(!TextUtils.isEmpty(sessionID)) {
+                            conn.setRequestProperty( "cookie", sessionID) ;
+                        }
+
+                        String signal = URLEncoder.encode("nickname", "UTF-8")+"="+URLEncoder.encode(senderNickname, "UTF-8");
+                        OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+                        osw.write(signal);
+                        osw.flush();
+                        osw.close();
+
+                        int serverResponseCode = conn.getResponseCode();
+                        String serverResponseMessage = conn.getResponseMessage();
+
+                        if(serverResponseCode == 200){
+
+                        }
+
+                        BufferedReader rd = null;
+
+                        rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while((line = rd.readLine()) != null){
+                            sb.append(line);
+                        }
+                        rd.close();
+                        return sb.toString().trim();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                        return e.getMessage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return e.getMessage();
+                    }
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if(!TextUtils.isEmpty(s)){
+                try {
+                    JSONObject jobject = new JSONObject(s);
+                    String path = jobject.getString(senderNickname);
+
+                    SharedPreferences sp = getSharedPreferences("tmpFriendPicPath", MODE_PRIVATE);
+                    if(!sp.getString(senderNickname, "").equals(path)){
+                        SharedPreferences.Editor sp_ed = sp.edit();
+                        sp_ed.putString(String.valueOf(senderNickname), path);
+                        sp_ed.commit();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
