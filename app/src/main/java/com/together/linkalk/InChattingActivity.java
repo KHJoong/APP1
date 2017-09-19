@@ -1,5 +1,6 @@
 package com.together.linkalk;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,6 +46,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by kimhj on 2017-08-01.
@@ -61,6 +64,7 @@ public class InChattingActivity extends AppCompatActivity {
     TextView tvComment;
     EditText etMsg;
     ImageView btnSend;
+    Button btnSendOther;
 
     MsgDBHelper msgDBHelper;
     String other_nickname = "";
@@ -140,6 +144,7 @@ public class InChattingActivity extends AppCompatActivity {
         View view = findViewById(R.id.include);
         etMsg = (EditText) view.findViewById(R.id.etSendedMsg);
         btnSend = (ImageView) view.findViewById(R.id.btnSendMsg);
+        btnSendOther = (Button)view.findViewById(R.id.btnSendOther);
 
         // 리스트뷰 클릭하면 메시지 원본<->번역 변경
         lvChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -305,6 +310,15 @@ public class InChattingActivity extends AppCompatActivity {
             }
         });
 
+        // 메시지 왜 다른 거 추가하는 버튼
+        btnSendOther.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DialogInChattingActivityOtherSend.class);
+                startActivity(intent);
+            }
+        });
+
     }   // onCreate 끝
 
     @Override
@@ -343,7 +357,16 @@ public class InChattingActivity extends AppCompatActivity {
         if(!showMsg.isInterrupted()){
             showMsg.interrupt();
         }
-        finish();
+        ActivityManager am = (ActivityManager) getApplicationContext().getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        String com = taskInfo.get(0).topActivity.getClassName();
+        Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+        if(!(com.equals("com.sec.android.app.camera.Camera")
+                || com.equals("com.sec.android.gallery3d.app.Gallery")
+                || com.equals("com.sec.android.gallery3d.app.CropImage")
+                || com.equals("com.together.linkalk.PhotoFilterActivity2"))){
+            finish();
+        }
     }
 
     @Override

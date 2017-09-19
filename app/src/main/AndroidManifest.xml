@@ -137,13 +137,21 @@
         </activity>
         <!--Chatting activity end-->
 
-        <!--Chatting activity start-->
+        <!--Chatting activity InfoDialog start-->
         <activity
             android:name=".DialogInChattingActivity"
             android:theme="@android:style/Theme.Holo.Light.Dialog">
 
         </activity>
-        <!--Chatting activity end-->
+        <!--Chatting activity InfoDialog end-->
+
+        <!--Chatting activity OtherDialog start-->
+        <activity
+            android:name=".DialogInChattingActivityOtherSend"
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
+
+        </activity>
+        <!--Chatting activity OtherDialog end-->
 
         <!--PhotoFilter activity start-->
         <activity
@@ -152,6 +160,14 @@
 
         </activity>
         <!--PhotoFilter activity end-->
+
+        <!--PhotoFilter activity 2 start-->
+        <activity
+            android:name=".PhotoFilterActivity2"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+
+        </activity>
+        <!--PhotoFilter activity 2 end-->
 
         <!--Google Firebase (To FCM) start-->
         <service

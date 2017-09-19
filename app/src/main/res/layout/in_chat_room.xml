@@ -21,11 +21,11 @@
     <include
         android:id="@+id/include"
         layout="@layout/type_msg_area"
-        android:layout_width="395dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="4dp"
         android:layout_marginTop="8dp" />
 
     <ListView
