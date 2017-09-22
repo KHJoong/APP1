@@ -690,6 +690,12 @@ public class PhotoFilterActivity2 extends Activity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            // 이미지 성공적으로 올렸다는 브로드캐스트
+            // InChattingActivity 가 받아서 메시지로 전송
+            Intent intent = new Intent();
+            intent.setAction("com.together.broadcast.chat.img");
+            sendBroadcast(intent);
         }
     }
 

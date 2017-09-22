@@ -75,6 +75,8 @@ public class InChattingActivity extends AppCompatActivity {
 
     Thread sender;
     Thread showMsg;
+    IntentFilter imgIntentFilter;
+    BroadcastReceiver imgBroadcastReceiver;
     IntentFilter intentFilter2;
     BroadcastReceiver broadcastReceiver2;
 
@@ -230,8 +232,34 @@ public class InChattingActivity extends AppCompatActivity {
         nm.cancel(rn);
 
         final Handler handler = new Handler();
+//        imgIntentFilter = new IntentFilter();
+//        imgIntentFilter.addAction("com.together.broadcast.chat.img");
+//        imgBroadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                if(intent.getAction().equals("com.together.broadcast.chat.img")){
+//                    SharedPreferences s = getSharedPreferences("chatImg", MODE_PRIVATE);
+//                    String path = s.getString("path", "");
+//                    JSONObject obj = new JSONObject();
+//                    try {
+//                        obj.put("sender", my_nickname);
+//                        obj.put("receiver", new JSONArray(other_nickname_array));
+//                        obj.put("type", "2");
+//                        obj.put("msg", path);
+//                        obj.put("language", my_language);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    String sdata = obj.toString();
+//                    sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
+//                    sender.start();
+//                }
+//            }
+//        };
+
         intentFilter2 = new IntentFilter();
         intentFilter2.addAction("com.together.broadcast.chat.integer");
+        intentFilter2.addAction("com.together.broadcast.chat.img");
         broadcastReceiver2 = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -242,46 +270,69 @@ public class InChattingActivity extends AppCompatActivity {
                         MsgDBHelper msgDBHelper = new MsgDBHelper(getApplicationContext());
                         msgDBHelper.continueSelectMsg(handler, my_nickname, other_nickname, lvChat, ccAdapter);
                     }
+
+                    // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
+                    String msg_sender = intent.getStringExtra("Receiver");
+                    String dis1 = intent.getStringExtra("dis1");
+                    String dis2 = intent.getStringExtra("dis2");
+                    String msg = intent.getStringExtra("msg");
+                    ArrayList<String> receiver_array = intent.getStringArrayListExtra("ReceiverArray");
+                    Log.i("notification msg_sender", msg_sender);
+                    Log.i("notification msg", msg);
+
+                    // 방 번호 찾는 쿼리
+                    String query = "SELECT * FROM chat_room WHERE relation='"+other_nickname+"'";
+                    SQLiteDatabase db = msgDBHelper.getReadableDatabase();
+                    Cursor c = db.rawQuery(query, null);
+                    String rela = "";
+                    if(c.moveToFirst()){
+                        rela = c.getString(c.getColumnIndex("relation"));
+                    }
+                    query = "SELECT * FROM chat_room WHERE relation='"+dis1+"' or relation='"+dis2+"'";
+                    c = db.rawQuery(query, null);
+                    int rn = 0;
+                    if(c.moveToFirst()){
+                        rn =  c.getInt(c.getColumnIndex("roomNo"));
+                    }
+                    c.close();
+                    db.close();
+                    if(!msg_sender.equals(my_nickname) && (!rela.equals(dis1) && !rela.equals(dis2))){
+                        NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+                        Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
+                        noti_intent.putStringArrayListExtra("Receiver", receiver_array);
+                        noti_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        Notification.Builder builder = new Notification.Builder(getApplicationContext());
+                        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis()/1000, noti_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                .setTicker("Linkalk")
+                                .setWhen(System.currentTimeMillis())
+                                .setContentTitle(msg_sender).setContentText(msg)
+                                .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                                .setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
+                                .setOngoing(false);
+                        notificationManager.notify(rn, builder.build());
+                    }
+                } else if(intent.getAction().equals("com.together.broadcast.chat.img")) {
+                    // 사진 전송 시 받는 브로드캐스트
+                    SharedPreferences s = getSharedPreferences("chatImg", MODE_PRIVATE);
+                    String path = s.getString("path", "");
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("sender", my_nickname);
+                        obj.put("receiver", new JSONArray(other_nickname_array));
+                        obj.put("type", "2");
+                        obj.put("msg", path);
+                        obj.put("language", my_language);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    String sdata = obj.toString();
+                    sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
+                    sender.start();
                 }
 
-                // InChattingActivity에 있을 때 도착한 메시지가 보고 있는 방의 메시지가 아니면 노티 띄우기
-                String msg_sender = intent.getStringExtra("Receiver");
-                String dis1 = intent.getStringExtra("dis1");
-                String dis2 = intent.getStringExtra("dis2");
-                String msg = intent.getStringExtra("msg");
-                ArrayList<String> receiver_array = intent.getStringArrayListExtra("ReceiverArray");
-                Log.i("notification msg_sender", msg_sender);
-                Log.i("notification msg", msg);
 
-                // 방 번호 찾는 쿼리
-                String query = "SELECT * FROM chat_room WHERE relation='"+other_nickname+"'";
-                SQLiteDatabase db = msgDBHelper.getReadableDatabase();
-                Cursor c = db.rawQuery(query, null);
-                int rn = 0;
-                String rela = "";
-                if(c.moveToFirst()){
-                    rn =  c.getInt(c.getColumnIndex("roomNo"));
-                    rela = c.getString(c.getColumnIndex("relation"));
-                }
-                c.close();
-                db.close();
-                if(!msg_sender.equals(my_nickname) && (!rela.equals(dis1) && !rela.equals(dis2))){
-                    NotificationManager notificationManager= (NotificationManager)getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-                    Intent noti_intent = new Intent(getApplicationContext(), InChattingActivity.class);
-                    noti_intent.putStringArrayListExtra("Receiver", receiver_array);
-                    noti_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    Notification.Builder builder = new Notification.Builder(getApplicationContext());
-                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis()/1000, noti_intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                            .setTicker("Linkalk")
-                            .setWhen(System.currentTimeMillis())
-                            .setContentTitle(msg_sender).setContentText(msg)
-                            .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true)
-                            .setOngoing(false);
-                    notificationManager.notify(rn, builder.build());
-                }
             }
         } ;
 
@@ -294,6 +345,7 @@ public class InChattingActivity extends AppCompatActivity {
                     try {
                         obj.put("sender", my_nickname);
                         obj.put("receiver", new JSONArray(other_nickname_array));
+                        obj.put("type", "1");
                         obj.put("msg", etMsg.getText().toString());
                         obj.put("language", my_language);
                     } catch (JSONException e) {
