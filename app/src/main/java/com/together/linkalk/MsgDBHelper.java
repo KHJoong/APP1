@@ -33,7 +33,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS chat_room (roomNo INTEGER, relation TEXT, ordered INTEGER);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS chat_msg (roomNo INTEGER, msgNo INTEGER, sender TEXT, message TEXT, transmsg TEXT, time TEXT, readed INTEGER, sync INTEGER);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS chat_msg (roomNo INTEGER, msgNo INTEGER, sender TEXT, type INTEGER, message TEXT, transmsg TEXT, time TEXT, readed INTEGER, sync INTEGER);");
     }
 
     @Override
@@ -55,7 +55,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         }
     }
 
-    public void insertMsg(String sender, String receiver, String receiver2, String msg, String transmsg, String time, int readed, int sync){
+    public void insertMsg(String sender, String receiver, String receiver2, int type, String msg, String transmsg, String time, int readed, int sync){
         SQLiteDatabase db = getWritableDatabase();
 
         // 어떤 방인지, 방 번호 찾는 쿼리
@@ -94,7 +94,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
         }
 
         // 메시지 가장 마지막 번호에 받은 메세지 추가하기
-        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+saveMsg+"', '"+saveTransMsg+"', '"+time+"', '"+readed+"', '"+sync+"');");
+        db.execSQL("INSERT INTO chat_msg VALUES('"+rn+"', '"+mn+"', '"+sender+"', '"+type+"', '"+saveMsg+"', '"+saveTransMsg+"', '"+time+"', '"+readed+"', '"+sync+"');");
 
         // 새로 메시지가 도착한 채팅방의 순위를 0으로 땡겨주는 부분
         // 먼저 채팅방의 순서를 읽어오고
@@ -135,9 +135,10 @@ public class MsgDBHelper extends SQLiteOpenHelper{
             do{
                 int mn = c.getInt(1);
                 String sender = c.getString(2);
-                String msg = c.getString(3);
-                String transmsg = c.getString(4);
-                String time = c.getString(5);
+                int type = c.getInt(3);
+                String msg = c.getString(4);
+                String transmsg = c.getString(5);
+                String time = c.getString(6);
 
                 String nick="";
                 String imgpath="";
@@ -169,7 +170,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                     imgpath = sp.getString(sender, "");
                 }
 
-                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);
+                Chat chat = new Chat(sender, dist, type, msg, transmsg, time, 1, imgpath);
                 ad.add(chat);
                 db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
             }while(c.moveToNext());
@@ -199,9 +200,10 @@ public class MsgDBHelper extends SQLiteOpenHelper{
             do{
                 int mn = c.getInt(1);
                 String sender = c.getString(2);
-                String msg = c.getString(3);
-                String transmsg = c.getString(4);
-                String time = c.getString(5);
+                int type = c.getInt(3);
+                String msg = c.getString(4);
+                String transmsg = c.getString(5);
+                String time = c.getString(6);
 
                 String nick="";
                 String imgpath="";
@@ -233,7 +235,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                     imgpath = sp.getString(sender, "");
                 }
 
-                Chat chat = new Chat(sender, dist, msg, transmsg, time, 1, imgpath);
+                Chat chat = new Chat(sender, dist, type, msg, transmsg, time, 1, imgpath);
                 ad.addItem(chat);
                 db.execSQL("UPDATE chat_msg SET readed='2' WHERE roomNo='"+rn+"' and msgNo='"+mn+"'");
             }while(c.moveToNext());

@@ -7,6 +7,7 @@ package com.together.linkalk;
 public class Chat {
     String sender;
     String Receiver;
+    int type;
     String msg;
     String transmsg;
     String time;
@@ -15,9 +16,10 @@ public class Chat {
 
     boolean isTrans;
 
-    Chat(String S, String R, String M, String TM, String T, int s){
+    Chat(String S, String R, int TY, String M, String TM, String T, int s){
         sender = S;
         Receiver = R;
+        type = TY;
         msg = M;
         transmsg = TM;
         time = T;
@@ -25,9 +27,10 @@ public class Chat {
         isTrans = true;
     }
 
-    Chat(String S, String R, String M, String TM, String T, int s, String P){
+    Chat(String S, String R, int TY, String M, String TM, String T, int s, String P){
         sender = S;
         Receiver = R;
+        type = TY;
         msg = M;
         transmsg = TM;
         time = T;
@@ -43,6 +46,8 @@ public class Chat {
     public String getReceiver() {
         return Receiver;
     }
+
+    public int getType() { return type; }
 
     public String getMsg() {
         return msg;

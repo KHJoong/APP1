@@ -275,6 +275,7 @@ public class InChattingActivity extends AppCompatActivity {
                     String msg_sender = intent.getStringExtra("Receiver");
                     String dis1 = intent.getStringExtra("dis1");
                     String dis2 = intent.getStringExtra("dis2");
+                    int type = intent.getIntExtra("type", 0);
                     String msg = intent.getStringExtra("msg");
                     ArrayList<String> receiver_array = intent.getStringArrayListExtra("ReceiverArray");
                     Log.i("notification msg_sender", msg_sender);
@@ -525,9 +526,10 @@ public class InChattingActivity extends AppCompatActivity {
                                     cursor = db.rawQuery(qu, null);
                                     while(cursor.moveToNext()){
                                         final String sender = cursor.getString(2);
-                                        final String msg = cursor.getString(3);
-                                        final String transmsg = cursor.getString(4);
-                                        final String time = cursor.getString(5);
+                                        final int type = cursor.getInt(3);
+                                        final String msg = cursor.getString(4);
+                                        final String transmsg = cursor.getString(5);
+                                        final String time = cursor.getString(6);
 
                                         String nick="";
                                         String imgpath="";
@@ -549,7 +551,7 @@ public class InChattingActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
-                                        Chat chat = new Chat(sender, other_nickname, msg, transmsg, time, 1, imgpath);
+                                        Chat chat = new Chat(sender, other_nickname, type, msg, transmsg, time, 1, imgpath);
                                         ccAdapter.add(chat);
                                         ct = ct+1;
 

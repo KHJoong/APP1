@@ -226,6 +226,7 @@ public class MainChatFragment extends Fragment {
                     while (c1.moveToNext()){
                         String roomName = "";
                         int numMember = 0;
+                        int type = 0;
                         String lastCom = "";
                         String lastComTime = "";
                         int numUnread = 0;
@@ -261,6 +262,7 @@ public class MainChatFragment extends Fragment {
                             int lastMsgNum = c2.getCount();
                             while(c2.moveToNext()){
                                 if(c2.getInt(c2.getColumnIndex("msgNo")) == (lastMsgNum-1)){
+                                    type = c2.getInt(c2.getColumnIndex("type"));
                                     lastCom = c2.getString(c2.getColumnIndex("transmsg"));
                                     lastComTime = c2.getString(c2.getColumnIndex("time"));
                                 }
@@ -270,8 +272,13 @@ public class MainChatFragment extends Fragment {
                             Cursor c3 = db.rawQuery(selectQuery3, null);
                             numUnread = c3.getCount();
 
-                            Room room = new Room(roomNo, roomName, relation, numMember, lastCom, lastComTime, numUnread);
-                            cla.addItem(room);
+                            if(type ==1){
+                                Room room = new Room(roomNo, roomName, relation, numMember, lastCom, lastComTime, numUnread);
+                                cla.addItem(room);
+                            } else if(type ==2){
+                                Room room = new Room(roomNo, roomName, relation, numMember, "(사진)", lastComTime, numUnread);
+                                cla.addItem(room);
+                            }
 
                             c2.close();
                             c3.close();

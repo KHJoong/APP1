@@ -10,6 +10,7 @@ import android.widget.TextView;
 public class ViewHolderChat {
     ImageView pic;
     TextView sender;
+    ImageView imgMsg;
     TextView msg;
     TextView time;
     TextView date;

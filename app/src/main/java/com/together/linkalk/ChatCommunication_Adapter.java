@@ -48,7 +48,15 @@ public class ChatCommunication_Adapter extends BaseAdapter {
     String saved2Month;
     String saved2Day;
 
-
+    RelativeLayout.LayoutParams my_msg_params;
+    RelativeLayout.LayoutParams my_imgMsg_params;
+    RelativeLayout.LayoutParams my_time_params_left_msg;
+    RelativeLayout.LayoutParams my_time_params_left_imgMsg;
+    RelativeLayout.LayoutParams other_pic_params;
+    RelativeLayout.LayoutParams other_msg_params_right_pic;
+    RelativeLayout.LayoutParams other_imgMsg_params_right_pic;
+    RelativeLayout.LayoutParams other_time_params_right_msg;
+    RelativeLayout.LayoutParams other_time_params_right_imgMsg;
 
 
     ChatCommunication_Adapter(Context context){
@@ -85,6 +93,7 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
             viewHolder.pic = (ImageView)view.findViewById(R.id.iv_my_pic);
             viewHolder.sender = (TextView)view.findViewById(R.id.tv_my_nick);
+            viewHolder.imgMsg = (ImageView)view.findViewById(R.id.iv_chat_img);
             viewHolder.msg = (TextView)view.findViewById(R.id.tv_my_communi);
             viewHolder.time = (TextView)view.findViewById(R.id.tv_my_time);
             viewHolder.date = (TextView)view.findViewById(R.id.tv_date);
@@ -129,60 +138,115 @@ public class ChatCommunication_Adapter extends BaseAdapter {
             }
         }
 
+
+        if(ccaItem.get(position).getType()==1){
+            my_msg_params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            my_msg_params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+
+            my_time_params_left_msg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            my_time_params_left_msg.addRule(RelativeLayout.LEFT_OF, viewHolder.msg.getId());
+            my_time_params_left_msg.rightMargin = 15;
+
+            other_msg_params_right_pic = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            other_msg_params_right_pic.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
+            other_msg_params_right_pic.leftMargin = 10;
+
+            other_time_params_right_msg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            other_time_params_right_msg.addRule(RelativeLayout.RIGHT_OF, viewHolder.msg.getId());
+            other_time_params_right_msg.leftMargin = 15;
+
+        } else if(ccaItem.get(position).getType()==2) {
+            my_imgMsg_params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            my_imgMsg_params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+            my_imgMsg_params.width=510;
+            my_imgMsg_params.height=340;
+
+            my_time_params_left_imgMsg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            my_time_params_left_imgMsg.addRule(RelativeLayout.LEFT_OF, viewHolder.imgMsg.getId());
+            my_time_params_left_imgMsg.rightMargin = 15;
+
+            other_imgMsg_params_right_pic = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            other_imgMsg_params_right_pic.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
+            other_imgMsg_params_right_pic.leftMargin = 10;
+            other_imgMsg_params_right_pic.width=510;
+            other_imgMsg_params_right_pic.height=340;
+
+            other_time_params_right_imgMsg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            other_time_params_right_imgMsg.addRule(RelativeLayout.RIGHT_OF, viewHolder.imgMsg.getId());
+            other_time_params_right_imgMsg.leftMargin = 15;
+        }
+
+        other_pic_params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        other_pic_params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+        other_pic_params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        other_pic_params.width=90;
+        other_pic_params.height=90;
+        other_pic_params.leftMargin = 10;
+
         // 채팅방 메시지 띄워주는 부분
         if(sender.equals(nickname)){
             viewHolder.pic.setVisibility(View.GONE);
             viewHolder.sender.setText(ccaItem.get(position).getSender());
-            viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
             viewHolder.time.setText(savedHour + " : " + savedMin);
-
-            viewHolder.msg.setBackgroundResource(R.drawable.mine);
-
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-            viewHolder.msg.setLayoutParams(params);
-
             viewHolder.sender.setGravity(Gravity.RIGHT);
+            if(ccaItem.get(position).getType()==1){
+                viewHolder.msg.setVisibility(View.VISIBLE);
+                viewHolder.imgMsg.setVisibility(View.GONE);
 
-            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.LEFT_OF, viewHolder.msg.getId());
-            params.rightMargin = 15;
-            viewHolder.time.setLayoutParams(params);
-            viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
+                viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
+                viewHolder.msg.setBackgroundResource(R.drawable.mine);
+                viewHolder.msg.setLayoutParams(my_msg_params);
 
+                viewHolder.time.setLayoutParams(my_time_params_left_msg);
+                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
+            } else if(ccaItem.get(position).getType()==2) {
+                viewHolder.imgMsg.setVisibility(View.VISIBLE);
+                viewHolder.msg.setVisibility(View.GONE);
+
+                String chat_img_path = ccaItem.get(position).getTransmsg();
+                Uri chat_img_uri = Uri.parse("http://www.o-ddang.com/linkalk/"+chat_img_path);
+                Glide.with(ccaContext).load(chat_img_uri).into(viewHolder.imgMsg);
+                viewHolder.imgMsg.setLayoutParams(my_imgMsg_params);
+
+                viewHolder.time.setLayoutParams(my_time_params_left_imgMsg);
+                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
+            }
         }  else if(!sender.equals(nickname)){
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            params.width=90;
-            params.height=90;
-            params.leftMargin = 10;
-            viewHolder.pic.setLayoutParams(params);
-            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
-            params.leftMargin = 10;
-            viewHolder.msg.setLayoutParams(params);
-
-            params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.RIGHT_OF, viewHolder.msg.getId());
-            params.leftMargin = 15;
-            viewHolder.time.setLayoutParams(params);
-            viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
-
-            viewHolder.sender.setGravity(Gravity.LEFT);
-
             viewHolder.pic.setVisibility(View.VISIBLE);
+            viewHolder.pic.setLayoutParams(other_pic_params);
             String path = ccaItem.get(position).getPath();
             Uri uri = Uri.parse("http://www.o-ddang.com/linkalk/"+path);
             Glide.with(ccaContext).load(uri).apply(RequestOptions.circleCropTransform()).into(viewHolder.pic);
             viewHolder.sender.setText(ccaItem.get(position).getSender());
-            if(ccaItem.get(position).getIsTrans()){
-                viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
-            } else {
-                viewHolder.msg.setText(ccaItem.get(position).getMsg());
+            viewHolder.sender.setGravity(Gravity.LEFT);
+            if(ccaItem.get(position).getType()==1){
+                viewHolder.msg.setVisibility(View.VISIBLE);
+                viewHolder.imgMsg.setVisibility(View.GONE);
+
+                if(ccaItem.get(position).getIsTrans()){
+                    viewHolder.msg.setText(ccaItem.get(position).getTransmsg());
+                } else {
+                    viewHolder.msg.setText(ccaItem.get(position).getMsg());
+                }
+                viewHolder.msg.setBackgroundResource(R.drawable.other);
+                viewHolder.msg.setLayoutParams(other_msg_params_right_pic);
+
+                viewHolder.time.setText(savedHour + " : " + savedMin);
+                viewHolder.time.setLayoutParams(other_time_params_right_msg);
+                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
+            } else if(ccaItem.get(position).getType()==2) {
+                viewHolder.imgMsg.setVisibility(View.VISIBLE);
+                viewHolder.msg.setVisibility(View.GONE);
+
+                String chat_img_path = ccaItem.get(position).getTransmsg();
+                Uri chat_img_uri = Uri.parse("http://www.o-ddang.com/linkalk/"+chat_img_path);
+                Glide.with(ccaContext).load(chat_img_uri).into(viewHolder.imgMsg);
+                viewHolder.imgMsg.setLayoutParams(other_imgMsg_params_right_pic);
+
+                viewHolder.time.setText(savedHour + " : " + savedMin);
+                viewHolder.time.setLayoutParams(other_time_params_right_imgMsg);
+                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
             }
-            viewHolder.time.setText(savedHour + " : " + savedMin);
-            viewHolder.msg.setBackgroundResource(R.drawable.other);
         }
 
         return view;
