@@ -5,11 +5,17 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.DhcpInfo;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
@@ -73,6 +79,9 @@ public class SocketService extends Service{
 
     String post_msg ="";
 
+    IntentFilter intentFilter;
+    BroadcastReceiver broadcastReceiver;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
@@ -127,6 +136,27 @@ public class SocketService extends Service{
             }
         }).start();
 
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.ACTION_SHUTDOWN");
+        intentFilter.addAction("android.intent.action.REBOOT");
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("android.intent.action.ACTION_SHUTDOWN") || intent.getAction().equals("android.intent.action.REBOOT")) {
+                    msgReceiver.interrupt();
+                    try {
+                        dos.close();
+                        in.close();
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    unregisterReceiver(broadcastReceiver);
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, intentFilter);
+
     }
 
     @Override
@@ -140,6 +170,7 @@ public class SocketService extends Service{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        unregisterReceiver(broadcastReceiver);
     }
 
     // 메시지 받는 쓰레드
