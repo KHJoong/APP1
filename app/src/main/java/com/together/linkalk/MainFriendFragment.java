@@ -39,6 +39,7 @@ public class MainFriendFragment extends Fragment {
 
     ListView lvMyFriend;
     MyFriendList_Adapter mfAdapter;
+    View header;
 
     String myFriend_tmp;
     String nickname;
@@ -73,7 +74,8 @@ public class MainFriendFragment extends Fragment {
         // 친구목록 ListView 셋팅
         lvMyFriend = (ListView)layout.findViewById(R.id.lvMyFriend);
         mfAdapter = new MyFriendList_Adapter(getActivity().getApplicationContext());
-        lvMyFriend.setAdapter(mfAdapter);
+        header = getActivity().getLayoutInflater().inflate(R.layout.main_friend_header, null, false);
+//        lvMyFriend.setAdapter(mfAdapter);
 
         myFriendLoad();
 
@@ -95,6 +97,14 @@ public class MainFriendFragment extends Fragment {
     public void onResume() {
         super.onResume();
         myFriendLoad();
+
+        if(mfAdapter.mfItem.size()==0){
+            lvMyFriend.addHeaderView(header, null, false);
+        } else {
+            lvMyFriend.removeHeaderView(header);
+        }
+        // 어댑터 새로고침
+        lvMyFriend.setAdapter(mfAdapter);
     }
 
     // 추가한 친구 목록 불러오기
@@ -130,8 +140,6 @@ public class MainFriendFragment extends Fragment {
                 break;
             }
         }
-        // 어댑터 새로고침
-        lvMyFriend.setAdapter(mfAdapter);
 
     }   // myFriendLoad 끝
 

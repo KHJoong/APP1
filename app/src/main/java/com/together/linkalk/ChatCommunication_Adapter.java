@@ -145,34 +145,33 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
             my_time_params_left_msg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             my_time_params_left_msg.addRule(RelativeLayout.LEFT_OF, viewHolder.msg.getId());
+            my_time_params_left_msg.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
             my_time_params_left_msg.rightMargin = 15;
 
             other_msg_params_right_pic = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            other_msg_params_right_pic.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
-            other_msg_params_right_pic.leftMargin = 10;
+            other_msg_params_right_pic.leftMargin = 110;
 
             other_time_params_right_msg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             other_time_params_right_msg.addRule(RelativeLayout.RIGHT_OF, viewHolder.msg.getId());
+            other_time_params_right_msg.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
             other_time_params_right_msg.leftMargin = 15;
 
         } else if(ccaItem.get(position).getType()==2) {
             my_imgMsg_params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             my_imgMsg_params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-            my_imgMsg_params.width=510;
-            my_imgMsg_params.height=340;
+            my_imgMsg_params.rightMargin = 10;
 
             my_time_params_left_imgMsg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             my_time_params_left_imgMsg.addRule(RelativeLayout.LEFT_OF, viewHolder.imgMsg.getId());
+            my_time_params_left_imgMsg.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
             my_time_params_left_imgMsg.rightMargin = 15;
 
             other_imgMsg_params_right_pic = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            other_imgMsg_params_right_pic.addRule(RelativeLayout.RIGHT_OF, viewHolder.pic.getId());
-            other_imgMsg_params_right_pic.leftMargin = 10;
-            other_imgMsg_params_right_pic.width=510;
-            other_imgMsg_params_right_pic.height=340;
+            other_imgMsg_params_right_pic.leftMargin = 120;
 
             other_time_params_right_imgMsg = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             other_time_params_right_imgMsg.addRule(RelativeLayout.RIGHT_OF, viewHolder.imgMsg.getId());
+            other_time_params_right_imgMsg.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
             other_time_params_right_imgMsg.leftMargin = 15;
         }
 
@@ -182,6 +181,9 @@ public class ChatCommunication_Adapter extends BaseAdapter {
         other_pic_params.width=90;
         other_pic_params.height=90;
         other_pic_params.leftMargin = 10;
+
+        RequestOptions op = new RequestOptions();
+        op.override(510, 340);
 
         // 채팅방 메시지 띄워주는 부분
         if(sender.equals(nickname)){
@@ -205,11 +207,10 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
                 String chat_img_path = ccaItem.get(position).getTransmsg();
                 Uri chat_img_uri = Uri.parse("http://www.o-ddang.com/linkalk/"+chat_img_path);
-                Glide.with(ccaContext).load(chat_img_uri).into(viewHolder.imgMsg);
+                Glide.with(ccaContext).load(chat_img_uri).apply(op).into(viewHolder.imgMsg);
                 viewHolder.imgMsg.setLayoutParams(my_imgMsg_params);
 
                 viewHolder.time.setLayoutParams(my_time_params_left_imgMsg);
-                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
             }
         }  else if(!sender.equals(nickname)){
             viewHolder.pic.setVisibility(View.VISIBLE);
@@ -240,12 +241,11 @@ public class ChatCommunication_Adapter extends BaseAdapter {
 
                 String chat_img_path = ccaItem.get(position).getTransmsg();
                 Uri chat_img_uri = Uri.parse("http://www.o-ddang.com/linkalk/"+chat_img_path);
-                Glide.with(ccaContext).load(chat_img_uri).into(viewHolder.imgMsg);
+                Glide.with(ccaContext).load(chat_img_uri).apply(op).into(viewHolder.imgMsg);
                 viewHolder.imgMsg.setLayoutParams(other_imgMsg_params_right_pic);
 
                 viewHolder.time.setText(savedHour + " : " + savedMin);
                 viewHolder.time.setLayoutParams(other_time_params_right_imgMsg);
-                viewHolder.time.setGravity(Gravity.CENTER_VERTICAL);
             }
         }
 

@@ -38,6 +38,7 @@ public class MainChatFragment extends Fragment {
 
     ListView lvRoom;
     ChatList_Adapter clAdapter;
+    View header;
 
     // 채팅방 목록 띄워주는 Thread
     ShowRoom showRoom;
@@ -62,7 +63,7 @@ public class MainChatFragment extends Fragment {
                 if(intent.getAction().equals("com.together.broadcast.room.integer")){
                     i = intent.getIntExtra("reload", 0);
                     if(i == 1){
-                        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter);
+                        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter, header);
                         showRoom.start();
                     }
                 }
@@ -75,6 +76,7 @@ public class MainChatFragment extends Fragment {
         RelativeLayout layout = (RelativeLayout)inflater.inflate(R.layout.main_chat_activity, container, false);
         lvRoom = (ListView)layout.findViewById(R.id.lvRoom);
         clAdapter = new ChatList_Adapter(getActivity().getApplicationContext());
+        header = getActivity().getLayoutInflater().inflate(R.layout.main_chat_header, null, false);
         lvRoom.setAdapter(clAdapter);
 
         lvRoom.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -149,7 +151,7 @@ public class MainChatFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter);
+        showRoom = new ShowRoom(getActivity().getApplicationContext(), lvRoom, clAdapter, header);
         showRoom.start();
     }
 
@@ -187,6 +189,9 @@ public class MainChatFragment extends Fragment {
             @Override
             public void run() {
                 clAdapter.claItem.remove(po);
+                if(clAdapter.claItem.size()==0){
+                    lvRoom.addHeaderView(header);
+                }
                 lvRoom.setAdapter(clAdapter);
             }
         });
@@ -197,13 +202,15 @@ public class MainChatFragment extends Fragment {
         Context mContext;
         ListView listView;
         ChatList_Adapter cla;
+        View head;
 
         Handler handler = new Handler();
 
-        public ShowRoom(Context context, ListView lv, ChatList_Adapter ad){
+        public ShowRoom(Context context, ListView lv, ChatList_Adapter ad, View h){
             mContext = context;
             listView = lv;
             cla = ad;
+            head = h;
         }
 
         public void run() {
@@ -283,6 +290,11 @@ public class MainChatFragment extends Fragment {
                             c2.close();
                             c3.close();
                         }
+                    }
+                    if(cla.claItem.size()==0){
+                        listView.addHeaderView(head, null, false);
+                    } else {
+                        listView.removeHeaderView(head);
                     }
                     listView.setAdapter(cla);
 
