@@ -278,9 +278,9 @@ public class SocketService extends Service{
                                                     .setOngoing(false);
                                             notificationManager.notify(rn, builder.build());
                                         }
-                                        c.close();
-                                        db.close();
                                     }
+                                    c.close();
+                                    db.close();
                                 }
 
                             }
@@ -390,7 +390,11 @@ public class SocketService extends Service{
             MsgDBHelper mdbHelper = new MsgDBHelper(getApplicationContext());
             mdbHelper.insertRoom(roomNo, relation);
 
-            msgDBHelper.insertMsg(sender, relation, relation, type, msg, post_msg, time, 1, 1);
+            if(type==1){
+                msgDBHelper.insertMsg(sender, relation, relation, type, msg, post_msg, time, 1, 1);
+            } else if(type==2){
+                msgDBHelper.insertMsg(sender, relation, relation, type, msg, msg, time, 1, 1);
+            }
 
             // 새로운 메시지가 추가됐음을 알리기 위한 Broadcast
             // 이 Broadcast를 받아서 채팅방의 순서를 재정렬함
