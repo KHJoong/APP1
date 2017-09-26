@@ -396,7 +396,9 @@ public class InChattingActivity extends AppCompatActivity {
         if(!(com.equals("com.sec.android.app.camera.Camera")
                 || com.equals("com.sec.android.gallery3d.app.Gallery")
                 || com.equals("com.sec.android.gallery3d.app.CropImage")
-                || com.equals("com.together.linkalk.PhotoFilterActivity2"))){
+                || com.equals("com.together.linkalk.PhotoFilterActivity2")
+                || com.equals("com.together.linkalk.NewFriendDetailProfile")
+                || com.equals("com.together.linkalk.MyFriendDetailProfile"))){
             finish();
         }
     }
@@ -527,6 +529,11 @@ public class InChattingActivity extends AppCompatActivity {
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
+                                                }
+                                                if(TextUtils.isEmpty(myFriendShared.getString(String.valueOf(i), ""))){
+                                                    SharedPreferences shPreferences = getApplicationContext().getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+                                                    imgpath = shPreferences.getString(nick, "baseprofileimg.jpg");
+                                                    break;
                                                 }
                                             }
                                         }

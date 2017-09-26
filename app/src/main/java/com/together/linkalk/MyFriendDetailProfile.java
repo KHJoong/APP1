@@ -36,6 +36,8 @@ import java.util.ArrayList;
 
 public class MyFriendDetailProfile extends AppCompatActivity {
 
+    int from;
+
     // 아이템 클릭한 포지션 번호(SharedPreferences에 저장된 key 값과 같음)
     int position;
 
@@ -70,6 +72,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
     String mem_hobby3;
     String mem_hobby4;
     String mem_hobby5;
+    String mem_imgpath;
 
 
     @Override
@@ -99,78 +102,94 @@ public class MyFriendDetailProfile extends AppCompatActivity {
         btn_nmyfriend_del = (Button)findViewById(R.id.btn_nmyfriend_del);
 
         Intent intent = getIntent();
-        position = intent.getIntExtra("position", 0);
-        Log.i("MyFriendDetail_position", String.valueOf(position));
+        from = intent.getIntExtra("from", 0);
+        if(from==2){
+            mem_nickname = intent.getStringExtra("nickname");
+            mem_language = intent.getStringExtra("language");
+            mem_lasttime = intent.getStringExtra("lasttime");
+            mem_location = intent.getStringExtra("location");
+            mem_introduce = intent.getStringExtra("introduce");
+            mem_hobby1 = intent.getStringExtra("hobby1");
+            mem_hobby2 = intent.getStringExtra("hobby2");
+            mem_hobby3 = intent.getStringExtra("hobby3");
+            mem_hobby4 = intent.getStringExtra("hobby4");
+            mem_hobby5 = intent.getStringExtra("hobby5");
+            mem_imgpath = intent.getStringExtra("imgpath");
+        } else {
+            position = intent.getIntExtra("position", 0);
+            Log.i("MyFriendDetail_position", String.valueOf(position));
 
-        try {
-            JSONObject object = new JSONObject(myFriendShared.getString(String.valueOf(position), ""));
-            Log.i("FriendDetailJson",  String.valueOf(object));
-            mem_nickname = object.getString("nickname");
-            mem_language = object.getString("language");
-            mem_lasttime = object.getString("lasttime");
-            mem_location = object.getString("location");
-            mem_introduce = object.getString("introduce");
-            mem_hobby1 = object.getString("hobby1");
-            mem_hobby2 = object.getString("hobby2");
-            mem_hobby3 = object.getString("hobby3");
-            mem_hobby4 = object.getString("hobby4");
-            mem_hobby5 = object.getString("hobby5");
-            if(!TextUtils.isEmpty(mem_nickname)){
-                nickname.setText(mem_nickname);
+            try {
+                JSONObject object = new JSONObject(myFriendShared.getString(String.valueOf(position), ""));
+                Log.i("FriendDetailJson",  String.valueOf(object));
+                mem_nickname = object.getString("nickname");
+                mem_language = object.getString("language");
+                mem_lasttime = object.getString("lasttime");
+                mem_location = object.getString("location");
+                mem_introduce = object.getString("introduce");
+                mem_hobby1 = object.getString("hobby1");
+                mem_hobby2 = object.getString("hobby2");
+                mem_hobby3 = object.getString("hobby3");
+                mem_hobby4 = object.getString("hobby4");
+                mem_hobby5 = object.getString("hobby5");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.i("newFriendDetailJson", e.getMessage());
             }
-            if(!TextUtils.isEmpty(mem_location)){
-                location.setText(mem_location);
-            } else {
-                location.setText("아직 알려주지 않은 정보입니다.");
-            }
-            if(!TextUtils.isEmpty(mem_language)){
-                language.setText(mem_language);
-            }
-            if(!TextUtils.isEmpty(mem_lasttime)){
-                lasttime.setText(mem_lasttime);
-            }
-            if(!TextUtils.isEmpty(mem_introduce)){
-                introduce.setText(mem_introduce);
-            } else {
-                introduce.setText("아직 알려주지 않은 정보입니다.");
-            }
-            if(!TextUtils.isEmpty(mem_hobby1)){
-                hobby1.setText(mem_hobby1);
-            } else {
-                hobby1.setVisibility(View.GONE);
-                ho1.setVisibility(View.GONE);
-            }
-            if(!TextUtils.isEmpty(mem_hobby2)){
-                hobby2.setText(mem_hobby2);
-            } else {
-                hobby2.setVisibility(View.GONE);
-                ho2.setVisibility(View.GONE);
-            }
-            if(!TextUtils.isEmpty(mem_hobby3)){
-                hobby3.setText(mem_hobby3);
-            } else {
-                hobby3.setVisibility(View.GONE);
-                ho3.setVisibility(View.GONE);
-            }
-            if(!TextUtils.isEmpty(mem_hobby4)){
-                hobby4.setText(mem_hobby4);
-            } else {
-                hobby4.setVisibility(View.GONE);
-                ho4.setVisibility(View.GONE);
-            }
-            if(!TextUtils.isEmpty(mem_hobby5)){
-                hobby5.setText(mem_hobby5);
-            } else {
-                hobby5.setVisibility(View.GONE);
-                ho5.setVisibility(View.GONE);
-            }
-            if(TextUtils.isEmpty(mem_hobby1) && TextUtils.isEmpty(mem_hobby2) && TextUtils.isEmpty(mem_hobby3) && TextUtils.isEmpty(mem_hobby4) && TextUtils.isEmpty(mem_hobby5) ){
-                hobby1.setVisibility(View.VISIBLE);
-                hobby1.setText("아직 알려주지 않은 정보입니다.");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.i("newFriendDetailJson", e.getMessage());
+        }
+
+        if(!TextUtils.isEmpty(mem_nickname)){
+            nickname.setText(mem_nickname);
+        }
+        if(!TextUtils.isEmpty(mem_location)){
+            location.setText(mem_location);
+        } else {
+            location.setText("아직 알려주지 않은 정보입니다.");
+        }
+        if(!TextUtils.isEmpty(mem_language)){
+            language.setText(mem_language);
+        }
+        if(!TextUtils.isEmpty(mem_lasttime)){
+            lasttime.setText(mem_lasttime);
+        }
+        if(!TextUtils.isEmpty(mem_introduce)){
+            introduce.setText(mem_introduce);
+        } else {
+            introduce.setText("아직 알려주지 않은 정보입니다.");
+        }
+        if(!TextUtils.isEmpty(mem_hobby1)){
+            hobby1.setText(mem_hobby1);
+        } else {
+            hobby1.setVisibility(View.GONE);
+            ho1.setVisibility(View.GONE);
+        }
+        if(!TextUtils.isEmpty(mem_hobby2)){
+            hobby2.setText(mem_hobby2);
+        } else {
+            hobby2.setVisibility(View.GONE);
+            ho2.setVisibility(View.GONE);
+        }
+        if(!TextUtils.isEmpty(mem_hobby3)){
+            hobby3.setText(mem_hobby3);
+        } else {
+            hobby3.setVisibility(View.GONE);
+            ho3.setVisibility(View.GONE);
+        }
+        if(!TextUtils.isEmpty(mem_hobby4)){
+            hobby4.setText(mem_hobby4);
+        } else {
+            hobby4.setVisibility(View.GONE);
+            ho4.setVisibility(View.GONE);
+        }
+        if(!TextUtils.isEmpty(mem_hobby5)){
+            hobby5.setText(mem_hobby5);
+        } else {
+            hobby5.setVisibility(View.GONE);
+            ho5.setVisibility(View.GONE);
+        }
+        if(TextUtils.isEmpty(mem_hobby1) && TextUtils.isEmpty(mem_hobby2) && TextUtils.isEmpty(mem_hobby3) && TextUtils.isEmpty(mem_hobby4) && TextUtils.isEmpty(mem_hobby5) ){
+            hobby1.setVisibility(View.VISIBLE);
+            hobby1.setText("아직 알려주지 않은 정보입니다.");
         }
 
         // 대화하기 버튼 클릭 메소드
@@ -198,6 +217,7 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                 // 채팅방 띄우기
                 Intent intent = new Intent(getApplicationContext(), InChattingActivity.class);
                 intent.putStringArrayListExtra("Receiver", list);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
             }
@@ -228,7 +248,11 @@ public class MyFriendDetailProfile extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        goMainActivity();
+        if(from==2){
+            finish();
+        }else if(from==0){
+            goMainActivity();
+        }
     }
 
     public void goMainActivity(){
@@ -332,10 +356,19 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
-                                goMainActivity();
+                                if(from==2){
+                                    finish();
+                                }else if(from==0){
+                                    goMainActivity();
+                                }
                             }
                         }).create().show();
             } else if(result.equals("success")){
+                SharedPreferences shPreferences = getApplicationContext().getSharedPreferences("tmpFriendPicPath", Context.MODE_PRIVATE);
+                SharedPreferences.Editor ed = shPreferences.edit();
+                ed.putString(mem_nickname, mem_imgpath);
+                ed.commit();
+
                 myFriendEditor.remove(String.valueOf(position));
                 myFriendEditor.commit();
                 for(int i=position+1;;i++){
@@ -349,7 +382,11 @@ public class MyFriendDetailProfile extends AppCompatActivity {
                     }
                 }
                 myFriendEditor.commit();
-                goMainActivity();
+                if(from==2){
+                    finish();
+                }else if(from==0){
+                    goMainActivity();
+                }
             }
         }
     }

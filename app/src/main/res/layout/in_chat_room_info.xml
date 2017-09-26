@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="250dp"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true">
 
+    <ProgressBar
+        android:id="@+id/pb_member_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
     <TextView
+        android:id="@+id/tvexplain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -19,7 +26,8 @@
     <ListView
         android:id="@+id/lvChatRoomInfo"
         android:layout_width="match_parent"
-        android:layout_height="250dp"></ListView>
+        android:layout_height="250dp"
+        android:layout_below="@id/tvexplain"></ListView>
     <Button
         android:id="@+id/lvChatRoomInfoBtn"
         android:layout_width="match_parent"
@@ -27,6 +35,7 @@
         android:background="#eeeeee"
         android:layout_marginTop="8dp"
         android:text="방 나가기"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:layout_below="@id/lvChatRoomInfo"/>
 
-</LinearLayout>
+</RelativeLayout>
