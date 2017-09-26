@@ -232,30 +232,6 @@ public class InChattingActivity extends AppCompatActivity {
         nm.cancel(rn);
 
         final Handler handler = new Handler();
-//        imgIntentFilter = new IntentFilter();
-//        imgIntentFilter.addAction("com.together.broadcast.chat.img");
-//        imgBroadcastReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if(intent.getAction().equals("com.together.broadcast.chat.img")){
-//                    SharedPreferences s = getSharedPreferences("chatImg", MODE_PRIVATE);
-//                    String path = s.getString("path", "");
-//                    JSONObject obj = new JSONObject();
-//                    try {
-//                        obj.put("sender", my_nickname);
-//                        obj.put("receiver", new JSONArray(other_nickname_array));
-//                        obj.put("type", "2");
-//                        obj.put("msg", path);
-//                        obj.put("language", my_language);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    String sdata = obj.toString();
-//                    sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
-//                    sender.start();
-//                }
-//            }
-//        };
 
         intentFilter2 = new IntentFilter();
         intentFilter2.addAction("com.together.broadcast.chat.integer");
@@ -328,6 +304,9 @@ public class InChattingActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    lvChat.setVisibility(View.VISIBLE);
+                    tvComment.setVisibility(View.GONE);
+
                     String sdata = obj.toString();
                     sender = new Thread(new ClientSender(SocketService.socket, SocketService.dos, sdata));
                     sender.start();
@@ -363,7 +342,7 @@ public class InChattingActivity extends AppCompatActivity {
             }
         });
 
-        // 메시지 왜 다른 거 추가하는 버튼
+        // 메시지 외 다른 거 추가하는 버튼
         btnSendOther.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -493,7 +472,7 @@ public class InChattingActivity extends AppCompatActivity {
                     msgDBHelper = new MsgDBHelper(mContext);
                     msgDBHelper.selectMsg(my_nick, dis, listView, cca);
                     listView.setAdapter(cca);
-                    listView.setSelection(cca.getCount()-1);
+                    listView.setSelection(cca.getCount());
 
                     // Listview 저장 메시지 불러오는 페이징
                     nextStartMsgPosition = 15;
@@ -601,7 +580,7 @@ public class InChattingActivity extends AppCompatActivity {
                         send = other_nickname_array.get(i);
                         tmp_nickname_array.add(other_nickname_array.get(i));
                     } else {
-                        send = send + other_nickname_array.get(i);
+                        send = send + "/" + other_nickname_array.get(i);
                         tmp_nickname_array.add(other_nickname_array.get(i));
                     }
                 }
@@ -660,12 +639,14 @@ public class InChattingActivity extends AppCompatActivity {
                 }
 
                 try {
-                    JSONObject ob = new JSONObject(getdata);
-                    SharedPreferences.Editor ed = shPreferences.edit();
-                    for(int i=0; i<tmp_nickname_array.size(); i++){
-                        ed.putString(tmp_nickname_array.get(i), ob.getString(tmp_nickname_array.get(i)));
+                    if(!TextUtils.isEmpty(getdata)){
+                        JSONObject ob = new JSONObject(getdata);
+                        SharedPreferences.Editor ed = shPreferences.edit();
+                        for(int i=0; i<tmp_nickname_array.size(); i++){
+                            ed.putString(tmp_nickname_array.get(i), ob.getString(tmp_nickname_array.get(i)));
+                        }
+                        ed.commit();
                     }
-                    ed.commit();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

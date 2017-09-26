@@ -243,7 +243,7 @@ public class MsgDBHelper extends SQLiteOpenHelper{
                 @Override
                 public void run() {
                     listView.setAdapter(ad);
-                    listView.setSelection(ad.getCount()-1);
+                    listView.setSelection(ad.getCount());
                 }
             });
         }
