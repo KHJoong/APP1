@@ -34,7 +34,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,8 +68,10 @@ public class PhotoFilterActivity2 extends Activity {
     private Bitmap mBitmap = null;
     private ImageView mImageView = null;
     private ListView mFilterListView = null;
+    private Spinner spinnerImgClearValue = null;
     private boolean mIsFilterListShowing = false;
     private boolean mIsEditListShowing = false;
+    private String mImgClearValue = "화질 선택";
 
     private int mCurrentFilter = 0;
     private ArrayList<Integer> mEditActions = new ArrayList<Integer>();
@@ -104,6 +108,20 @@ public class PhotoFilterActivity2 extends Activity {
         filterButton.setEnabled(false);
         ImageButton saveButton = (ImageButton)findViewById(R.id.buttonSave);
         saveButton.setEnabled(false);
+
+        spinnerImgClearValue = (Spinner)findViewById(R.id.spinnerImgClearValue);
+        spinnerImgClearValue.setVisibility(View.VISIBLE);
+        spinnerImgClearValue.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mImgClearValue = String.valueOf(parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         Intent i = getIntent();
         Uri photoUri = Uri.parse(i.getStringExtra("imageUri").toString());
@@ -188,8 +206,12 @@ public class PhotoFilterActivity2 extends Activity {
 
 
     public void onSaveButtonClick(View v) {
-        sSavePhotoTask = new SavePhotoTask(this);
-        sSavePhotoTask.execute();
+        if(mImgClearValue.equals("화질 선택")){
+            Toast.makeText(getApplicationContext(), "화질을 선택해주세요.", Toast.LENGTH_SHORT).show();
+        } else {
+            sSavePhotoTask = new SavePhotoTask(this, mImgClearValue);
+            sSavePhotoTask.execute();
+        }
     }
 
 
@@ -496,10 +518,11 @@ public class PhotoFilterActivity2 extends Activity {
     private static class SavePhotoTask extends AsyncTask<Void, Void, Void> {
         private WeakReference<PhotoFilterActivity2> mActivityRef;
         private String mSavePath;
+        private String mClearValue;
 
-        public SavePhotoTask(PhotoFilterActivity2 activity) {
+        public SavePhotoTask(PhotoFilterActivity2 activity, String cv) {
             mActivityRef = new WeakReference<PhotoFilterActivity2>(activity);
-
+            mClearValue = cv;
         }
 
         public void reattachActivity(PhotoFilterActivity2 activity) {
@@ -532,7 +555,15 @@ public class PhotoFilterActivity2 extends Activity {
                 File jpegFile = new File(activity.mOriginalPhotoPath);
                 try {
                     byte[] jpegData = FileUtils.readFileToByteArray(jpegFile);
-                    PhotoProcessing.nativeLoadResizedJpegBitmap(jpegData, jpegData.length, 1024 * 1024 * 2);
+                    int clear = 0;
+                    if(mClearValue.equals("저화질")){
+                        clear = (int)(jpegData.length * 0.85);
+                    } else if(mClearValue.equals("일반")){
+                        clear = (int)(jpegData.length * 0.999);
+                    } else if(mClearValue.equals("원본")){
+                        clear = jpegData.length*1024;
+                    }
+                    PhotoProcessing.nativeLoadResizedJpegBitmap(jpegData, jpegData.length, clear);
                     Bitmap bitmap = PhotoProcessing.filterPhoto(null, activity.mCurrentFilter);
                     int angle = MediaUtils.getExifOrientation(activity.mOriginalPhotoPath);
                     bitmap = PhotoProcessing.rotate(bitmap, angle);

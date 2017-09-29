@@ -42,11 +42,24 @@
             android:id="@+id/buttonFilter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:hapticFeedbackEnabled="true"
             android:longClickable="true"
             android:onClick="onFilterButtonClick"
-            android:src="@drawable/camerafilter" />
+            android:src="@drawable/camerafilter"
+            android:background="#ffffff"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerImgClearValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_gravity="center_vertical"
+            android:entries="@array/imgclearvalue"
+            android:scaleY="1.3"></Spinner>
 
         <ImageButton
             android:id="@+id/buttonSave"
@@ -56,7 +69,11 @@
             android:hapticFeedbackEnabled="true"
             android:longClickable="true"
             android:onClick="onSaveButtonClick"
-            android:src="@drawable/okmark" />
+            android:src="@drawable/okmark"
+            android:background="#ffffff"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
     </LinearLayout>
 
 </RelativeLayout>
